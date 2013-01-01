@@ -1,0 +1,22 @@
+{
+  "name": "rsync",
+  "version": "0.0.1",
+  "description": "Rsync cli wrapper",
+  "main": "rsync.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mattijs/node-rsync"
+  },
+  "keywords": [
+    "rsync",
+    "wrapper",
+    "cli",
+    "command"
+  ],
+  "author": "Mattijs Hoitink <mattijs@monkeyandmachine.com>",
+  "license": "MIT",
+  "readmeFilename": "README.md"
+}
