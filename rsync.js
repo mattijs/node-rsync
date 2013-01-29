@@ -241,7 +241,7 @@ Rsync.prototype.execute = function(callback) {
 
     // output buffers
     var stdoutBuffer = '',
-        stderrBuffer = Buffer('');
+        stderrBuffer = '';
 
     // Execute the command and wait for it to finish
     var command = exec(cmd);
