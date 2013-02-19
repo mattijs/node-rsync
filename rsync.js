@@ -202,23 +202,23 @@ Rsync.prototype.args = function() {
         }
     }
 
-    // Add short options if any were found
+    // Add short options if any are present
     if (short.length > 0) args.push('-' + short.join(''));
 
-    // Add long options if any were found
+    // Add long options if any are present
     if (long.length > 0)  args.push(long.join(' '));
+
+    // Add includes.
+    if (this._includes.length > 0) {
+        args.push(this._includes.map(function(pattern) {
+            return buildOption('include', pattern);
+        }).join(' '));
+    }
 
     // Add excludes
     if (this._excludes.length > 0) {
         args.push(this._excludes.map(function(pattern) {
             return buildOption('exclude', pattern);
-        }).join(' '));
-    }
-
-    // Add includes
-    if (this._includes.length > 0) {
-        args.push(this._includes.map(function(pattern) {
-            return buildOption('include', pattern);
         }).join(' '));
     }
 
