@@ -383,7 +383,11 @@ function buildOption(name, value) {
     // Build the option
     var option = prefix + name;
     if (arguments.length > 1 && value) {
-        option += glue + escapeShellArg(String(value));
+        if (name === 'rsh') {
+            option += glue + '"' + String(value) + '"'
+        } else {
+            option += glue + escapeShellArg(String(value));
+        }
     }
 
     return option;
