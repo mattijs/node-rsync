@@ -395,7 +395,7 @@ function buildOption(name, value) {
  * @return {String}
  */
 function escapeShellArg(arg) {
-  return '"' + arg.replace(/(["\s'$`\\])/g, '\\$1') + '"';
+  return '"' + arg.replace(/(["'`\\])/g, '\\$1') + '"';
 }
 
 /**
