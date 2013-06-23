@@ -146,9 +146,29 @@ var rsync = new Rsync()
 var c = rsync.command();
 // c is "rsync -az --rsh="ssh" /p/t/source server:/p/t/dest
 ```
-### execute(callback)
+### execute(callback,stdout_callback,stderr_callback)
 
-Executed the command.
+Execute the command. First callback is passed the arguments ```error, stdout,stderr```
+and is called when the command finishes. If you need to parse progress information
+on the fly during the transfer you can also specify optional ```stdout_callback```
+and ```stderr_callback``` which are both directly tied to the output streams of the 
+command. Note that if ```stdout_callback``` or ```stderr_callback``` is specified
+that stream won't be buffered and passed to the exit callback.
+
+```javascript
+//simple callback when finished
+rsync.execute(function(error, stdout, stderr) {
+    // we're done
+});
+
+
+rsync.execute(function(error, stdout, stderr) {
+    // we're done, stdout will be equal ''
+},function(chunk){
+    //do things like parse progress
+});
+```
+
 
 ## option shorthands
 
