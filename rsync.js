@@ -233,9 +233,12 @@ Rsync.prototype.args = function() {
 
 /**
  * Execute the rsync command.
- * @param {Function} callback
+ * stdout and stderr are buffered unless callbacks are specified
+ * @param {Function} callback, called when rsync finishes
+ * @param {Function} stdout_callback (optional) called on each chunk received from stdout
+ * @param {Function} stderr_callback (optional) called on each chunk received from stderr
  */
-Rsync.prototype.execute = function(callback) {
+Rsync.prototype.execute = function(callback,stdout_callback,stderr_callback) {
     // Execute the command in a subshell
     var cmd  = this.command();
 
@@ -246,10 +249,19 @@ Rsync.prototype.execute = function(callback) {
     // Execute the command and wait for it to finish
     var command = exec(cmd);
 
-    // capture stdout and stderr
-    command.stdout.on('data', function(chunk) { stdoutBuffer += chunk; });
-    command.stderr.on('data', function(chunk) { stderrBuffer += chunk; });
-
+    // capture stdout and stderr or use callback
+    if (typeof(stdout_callback) === 'function') {
+        command.stdout.on('data', stdout_callback);
+    } else {
+        command.stdout.on('data', function(chunk) { stdoutBuffer += chunk; });    
+    }
+    
+    if (typeof(stderr_callback === 'function')) {
+        command.stderr.on('data', function(chunk) { stderrBuffer += chunk; });    
+    } else {
+        command.stderr.on('data', function(chunk) { stderrBuffer += chunk; });
+    }
+    
     command.on('exit', function(code) {
         var error = null;
 
