@@ -152,7 +152,7 @@ var c = rsync.command();
 Register output handler functions for the commands stdout and stderr output. The handlers will be
 called with streaming data from the commands output when it is executed.
 
-```
+```javascript
 rsync.output(
     function(data){
         // do things like parse progress
@@ -160,17 +160,19 @@ rsync.output(
         // do things like parse error output
     }
 );
+```
 
 This method can be called with an array containing one or two functions. These functions will
 be treated as the stdoutHandler and stderrHandler arguments. This makes it possible to register
 handlers through the `Rsync.build` method by specifying the functions as an array.
 
-```
+```javascript
 var rsync = Rsync.build({
     // ...
     output: [stdoutFunc, stderrFunc] // these are references to functions defined elsewhere
     // ...
 });
+```
 
 ### execute(callback, stdoutHandler, stderrHandler)
 
@@ -183,9 +185,14 @@ data from stdout and stderr directly without buffering. The finish callback will
 receive the buffered output.
 
 ```javascript
+// simple execute
+rsync.execute(function(error, stdout, stderr, code, cmd) {
+
+});
+
 // execute with stream callbacks
 rsync.execute(
-    function(error, stdout, stderr) {
+    function(error, stdout, stderr, code, cmd) {
         // we're done
     }, function(data){
         // do things like parse progress
