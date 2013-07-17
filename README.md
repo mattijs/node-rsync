@@ -146,29 +146,28 @@ var rsync = new Rsync()
 var c = rsync.command();
 // c is "rsync -az --rsh="ssh" /p/t/source server:/p/t/dest
 ```
+
 ### execute(callback,stdout_callback,stderr_callback)
 
-Execute the command. First callback is passed the arguments ```error, stdout,stderr```
-and is called when the command finishes. If you need to parse progress information
-on the fly during the transfer you can also specify optional ```stdout_callback```
-and ```stderr_callback``` which are both directly tied to the output streams of the 
-command. Note that if ```stdout_callback``` or ```stderr_callback``` is specified
-that stream won't be buffered and passed to the exit callback.
+Execute the command. The callback function is called with an Error object (or null when there
+was none), the buffered output from stdout and stderr and the executed command as a String.
+
+When stdoutHandler and stderrHandler functions are provided they will be used to stream
+data from stdout and stderr directly without buffering. The finish callback will still
+receive the buffered output.
 
 ```javascript
-//simple callback when finished
-rsync.execute(function(error, stdout, stderr) {
-    // we're done
-});
-
-
-rsync.execute(function(error, stdout, stderr) {
-    // we're done, stdout will be equal ''
-},function(chunk){
-    //do things like parse progress
-});
+// execute with stream callbacks
+rsync.execute(
+    function(error, stdout, stderr) {
+        // we're done
+    }, function(chunk){
+        // do things like parse progress
+    }, function(data) {
+        // do things like parse error output
+    }
+);
 ```
-
 
 ## option shorthands
 

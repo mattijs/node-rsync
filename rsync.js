@@ -22,6 +22,12 @@ function Rsync(options) {
     // options
     this._options = {};
 
+    // output callbacks
+    this._outputHandlers = {
+        stdout: null,
+        stderr: null
+    };
+
     // internal debugging flag
     this._debug = false;
 }
@@ -232,15 +238,54 @@ Rsync.prototype.args = function() {
 };
 
 /**
- * Execute the rsync command.
- * stdout and stderr are buffered unless callbacks are specified
- * @param {Function} callback, called when rsync finishes
- * @param {Function} stdout_callback (optional) called on each chunk received from stdout
- * @param {Function} stderr_callback (optional) called on each chunk received from stderr
+ * Register an output handlers for the commands stdout and stderr streams.
+ * These functions will be called once data is streamed on one of the output buffers
+ * when the command is executed using `execute`.
+ *
+ * Only one callback function can be registered for each output stream. Previously
+ * registered callbacks will be overridden.
+ *
+ * @param {Function} stdout     Callback Function for stdout data
+ * @param {Function} stderr     Callback Function for stderr data
+ * @return Rsync
  */
-Rsync.prototype.execute = function(callback,stdout_callback,stderr_callback) {
+Rsync.prototype.output = function(stdout, stderr) {
+    // Check for single argument so the method can be used with Rsync.build
+    if (arguments.length === 1 && Array.isaArray(stdout)) {
+        stderr = stdout[1];
+        stdout = stdout[0];
+    }
+
+    if (typeof(stdout) === 'function') {
+        this._outputHandlers.stdout = stdout;
+    }
+    if (typeof(stderr) === 'function') {
+        this._outputHandlers.stderr = stdout;
+    }
+
+    return this;
+}
+
+/**
+ * Execute the rsync command.
+ *
+ * The callback function is called with an Error object (or null when there was none), the
+ * buffered output from stdout and stderr and the executed command as a String.
+ *
+ * When stdoutHandler and stderrHandler functions are provided they will be used to stream
+ * data from stdout and stderr directly without buffering. The finish callback will still
+ * receive the buffered output.
+ *
+ * @param {Function} callback       Called when rsync finishes
+ * @param {Function} stdoutHandler  (optional) Called on each chunk received from stdout
+ * @param {Function} stderrHandler  (optional) Called on each chunk received from stderr
+ */
+Rsync.prototype.execute = function(callback, stdoutHandler, stderrHandler) {
+    // Register output handlers
+    this.output(stdoutHandler, stderrHandler);
+
     // Execute the command in a subshell
-    var cmd  = this.command();
+    var cmd = this.command();
 
     // output buffers
     var stdoutBuffer = '',
@@ -249,19 +294,20 @@ Rsync.prototype.execute = function(callback,stdout_callback,stderr_callback) {
     // Execute the command and wait for it to finish
     var command = exec(cmd);
 
-    // capture stdout and stderr or use callback
-    if (typeof(stdout_callback) === 'function') {
-        command.stdout.on('data', stdout_callback);
-    } else {
-        command.stdout.on('data', function(chunk) { stdoutBuffer += chunk; });    
-    }
-    
-    if (typeof(stderr_callback === 'function')) {
-        command.stderr.on('data', function(chunk) { stderrBuffer += chunk; });    
-    } else {
-        command.stderr.on('data', function(chunk) { stderrBuffer += chunk; });
-    }
-    
+    // capture stdout and stderr
+    command.stdout.on('data', function(chunk) {
+        stdoutBuffer += chunk;
+        if (typeof(this._outputHandlers.stdout) === 'function') {
+            this._outputHandlers.stdout(chunk);
+        }
+    });
+    command.stderr.on('data', function(chunk) {
+        stderrBuffer += chunk;
+        if (typeof(this._outputHandlers.stdout) === 'function') {
+            this._outputHandlers.stdout(chunk);
+        }
+    });
+
     command.on('exit', function(code) {
         var error = null;
 
