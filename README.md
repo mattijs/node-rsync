@@ -147,13 +147,38 @@ var c = rsync.command();
 // c is "rsync -az --rsh="ssh" /p/t/source server:/p/t/dest
 ```
 
-### execute(callback,stdout_callback,stderr_callback)
+### output(stdoutHandler, stderrHandler)
+
+Register output handler functions for the commands stdout and stderr output. The handlers will be
+called with streaming data from the commands output when it is executed.
+
+```
+rsync.output(
+    function(data){
+        // do things like parse progress
+    }, function(data) {
+        // do things like parse error output
+    }
+);
+
+This method can be called with an array containing one or two functions. These functions will
+be treated as the stdoutHandler and stderrHandler arguments. This makes it possible to register
+handlers through the `Rsync.build` method by specifying the functions as an array.
+
+```
+var rsync = Rsync.build({
+    // ...
+    output: [stdoutFunc, stderrFunc] // these are references to functions defined elsewhere
+    // ...
+});
+
+### execute(callback, stdoutHandler, stderrHandler)
 
 Execute the command. The callback function is called with an Error object (or null when there
 was none), the buffered output from stdout and stderr, the exit code from the executed command
 and the executed command as a String.
 
-When stdoutHandler and stderrHandler functions are provided they will be used to stream
+When `stdoutHandler` and `stderrHandler` functions are provided they will be used to stream
 data from stdout and stderr directly without buffering. The finish callback will still
 receive the buffered output.
 
@@ -162,7 +187,7 @@ receive the buffered output.
 rsync.execute(
     function(error, stdout, stderr) {
         // we're done
-    }, function(chunk){
+    }, function(data){
         // do things like parse progress
     }, function(data) {
         // do things like parse error output
