@@ -270,7 +270,8 @@ Rsync.prototype.output = function(stdout, stderr) {
  * Execute the rsync command.
  *
  * The callback function is called with an Error object (or null when there was none), the
- * buffered output from stdout and stderr and the executed command as a String.
+ * buffered output from stdout and stderr, the exit code from the executed command and the
+ * executed command as a String.
  *
  * When stdoutHandler and stderrHandler functions are provided they will be used to stream
  * data from stdout and stderr directly without buffering. The finish callback will still
@@ -319,7 +320,7 @@ Rsync.prototype.execute = function(callback, stdoutHandler, stderrHandler) {
 
         // Check for callback
         if (typeof(callback) === 'function') {
-            callback(error, stdoutBuffer, stderrBuffer, cmd);
+            callback(error, stdoutBuffer, stderrBuffer, code, cmd);
         }
     });
 };

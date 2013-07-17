@@ -150,7 +150,8 @@ var c = rsync.command();
 ### execute(callback,stdout_callback,stderr_callback)
 
 Execute the command. The callback function is called with an Error object (or null when there
-was none), the buffered output from stdout and stderr and the executed command as a String.
+was none), the buffered output from stdout and stderr, the exit code from the executed command
+and the executed command as a String.
 
 When stdoutHandler and stderrHandler functions are provided they will be used to stream
 data from stdout and stderr directly without buffering. The finish callback will still
