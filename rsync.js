@@ -15,9 +15,8 @@ function Rsync(options) {
     this._sources     = [];
     this._destination = '';
 
-    // included/excluded files
-    this._includes = [];
-    this._excludes = [];
+    // ordered list of file patterns to include/exclude
+    this._patterns = [];
 
     // options
     this._options = {};
@@ -164,6 +163,112 @@ Rsync.prototype.option = function(name) {
 };
 
 /**
+ * Register a list of file patterns to include/exclude in the transfer. Patterns can be
+ * registered as an array of Strings or Objects.
+ *
+ * When registering a pattern as a String it must be prefixed with a `+` or `-` sign to
+ * signal include or exclude for the pattern. The sign will be stripped of and the
+ * pattern will be added to the ordered pattern list.
+ *
+ * When registering the pattern as an Object it must contain the `action` and
+ * `pattern` keys where `action` contains the `+` or `-` sign and the `pattern`
+ * key contains the file pattern, without the `+` or `-` sign.
+ *
+ * @example
+ *   // on an existing rsync object
+ *   rsync.patterns(['-docs', { action: '+', pattern: '/subdir/*.py' }]);
+ *
+ *   // using Rsync.build for a new rsync object
+ *   rsync = Rsync.build({
+ *     ...
+ *     patterns: [ '-docs', { action: '+', pattern: '/subdior/*.py' }]
+ *     ...
+ *   })
+ *
+ * @param {Array} patterns
+ * @return Rsync
+ */
+Rsync.prototype.patterns = function(patterns) {
+    if (arguments.length > 1) {
+        patterns = Array.prototype.slice.call(arguments, 0);
+    }
+    if (!isArray(patterns)) {
+        patterns = [ patterns ];
+    }
+
+    patterns.forEach(function(pattern) {
+        var action = '?';
+        if (typeof(pattern) === 'string') {
+            action  = pattern.charAt(0);
+            pattern = pattern.substring(1);
+        }
+        else if (
+            typeof(pattern) === 'object' &&
+            hasOP(pattern, 'action') &&
+            hasOP(pattern, 'pattern')
+        ) {
+            action  = pattern.action;
+            pattern = pattern.pattern;
+        }
+
+        // Check if the pattern is an include or exclude
+        if (action === '-') {
+            this.exclude(pattern);
+        }
+        else if (action === '+') {
+            this.include(pattern);
+        }
+        else {
+            throw new Error('Invalid pattern');
+        }
+    }, this);
+}
+
+/**
+ * Exclude a file pattern from transfer. The pattern will be appended to the ordered list
+ * of patterns for the rsync command.
+ *
+ * @param {String|Array} patterns
+ * @return Rsync
+ */
+Rsync.prototype.exclude = function(patterns) {
+    if (arguments.length > 1) {
+        patterns = Array.prototype.slice.call(arguments, 0);
+    }
+    if (!isArray(patterns)) {
+        patterns = [ patterns ];
+    }
+
+    patterns.forEach(function(pattern) {
+        this._patterns.push({ action:  '-', pattern: pattern });
+    }, this);
+
+    return this;
+}
+
+/**
+ * Include a file pattern for transfer. The pattern will be appended to the ordered list
+ * of patterns for the rsync command.
+ *
+ * @param {String|Array} patterns
+ * @return Rsync
+ */
+Rsync.prototype.include = function(patterns) {
+    if (arguments.length > 1) {
+        patterns = Array.prototype.slice.call(arguments, 0);
+    }
+    if (!isArray(patterns)) {
+        patterns = [ patterns ];
+    }
+
+    patterns.forEach(function(pattern) {
+        this._patterns.push({ action:  '+', pattern: pattern });
+    }, this);
+
+    return this;
+}
+
+/**
  * Get the command that is going to be executed.
  * @return {String}
  */
@@ -214,19 +319,18 @@ Rsync.prototype.args = function() {
     // Add long options if any are present
     if (long.length > 0)  args.push(long.join(' '));
 
-    // Add includes.
-    if (this._includes.length > 0) {
-        args.push(this._includes.map(function(pattern) {
-            return buildOption('include', pattern);
-        }).join(' '));
-    }
-
-    // Add excludes
-    if (this._excludes.length > 0) {
-        args.push(this._excludes.map(function(pattern) {
-            return buildOption('exclude', pattern);
-        }).join(' '));
-    }
+    // Add includes/excludes in order
+    this._patterns.forEach(function(def) {
+        if (def.action === '-') {
+            args.push(buildOption('exclude', def.pattern));
+        }
+        else if (def.action === '+') {
+            args.push(buildOption('include', def.pattern));
+        }
+        else {
+            debug(this, 'Unknown pattern action ' + def.action);
+        }
+    });
 
     // Add source(s) and destination
     args.push(
@@ -330,8 +434,6 @@ createValueAccessor('executable');
 createValueAccessor('destination');
 
 createListAccessor('source', '_sources');
-createListAccessor('exclude', '_excludes');
-createListAccessor('include', '_includes');
 
 exposeLongOption('rsh', 'shell');
 
@@ -484,6 +586,7 @@ function captureOutput(stream, buffer) {
 /**
  * Simple function for checking if a value is an Array. Will use the native
  * Array.isArray method if available.
+ * @private
  * @param {Mixed} value
  * @return {Boolean}
  */
@@ -499,10 +602,22 @@ function isArray(value) {
 /**
  * Simple hasOwnProperty wrapper. This will call hasOwnProperty on the obj
  * through the Object prototype.
+ * @private
  * @param {Object} obj  The object to check the property on
  * @param {String} key  The name of the property to check
  * @return {Boolean}
  */
 function hasOP(obj, key) {
     return Object.prototype.hasOwnProperty.call(obj, key);
+}
+
+/**
+ * Simple debug printer.
+ *
+ * @private
+ * @param {Rsync} cmd
+ * @param {String} message
+ */
+function debug(cmd, message) {
+    if (!cmd._debug) return;
 }

@@ -246,9 +246,39 @@ rsync.source(['/a/path', '/b/path']);
 
 In both cases the list of sources will contain two paths.
 
+### patterns(patterns)
+
+Register a list of file patterns to include/exclude in the transfer. Patterns can be registered as
+an array of Strings or Objects.
+
+When registering a pattern as a String it be prefixed with a `+` or `-` sign to
+signal include or exclude for the pattern. The sign will be stripped of and the
+pattern will be added to the ordered pattern list.
+
+When registering the pattern as an Object it must contain the `action` and
+`pattern` keys where `action` contains the `+` or `-` sign and the `pattern`
+key contains the file pattern, without the `+` or `-` sign.
+
+The order of patterns is important for some rsync commands. The patterns are stored in the order
+they are added either through the `patterns` method or the `include` and `exclude` methods. The
+`patterns` method can be used with `Rsync.build` to provide an ordered list for the command.
+
+```javascript
+// on an existing Rsync object
+rsync.patterns([ '-.git', { action: '+', pattern: '/some_dir' });
+
+// through Rsync.build
+var command = Rsync.build({
+    // ...
+    patterns: [ '-.git', { action: '+', pattern: '/some_dir' } ]
+    // ...
+});
+```
 ### exclude(pattern)
 
-Exclude a pattern from transfer. When this method is called multiple times with a value it is appended to the list of excluded patterns. It is also possible to present the list of excluded patterns as an array where each pattern will be appended to the list.
+Exclude a pattern from transfer. When this method is called multiple times with a value it is
+appended to the list of patterns. It is also possible to present the list of excluded
+patterns as an array where each pattern will be appended to the list.
 
 ```javascript
 // chained
@@ -261,7 +291,9 @@ rsync.exclude(['.git', '.DS_Store']);
 
 ### include(pattern)
 
-Include a pattern for transfer. When this method is called multiple times with a value it is appended to the list of included patterns. It is also possible to present the list of included patterns as an array where each pattern will be appended to the list.
+Include a pattern for transfer. When this method is called multiple times with a value it is
+appended to the list of patterns. It is also possible to present the list of included patterns as
+an array where each pattern will be appended to the list.
 
 ```javascript
 // chained
