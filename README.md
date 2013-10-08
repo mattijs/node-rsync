@@ -25,7 +25,7 @@ var rsync = new Rsync()
   .destination('server:/path/to/destination');
 
 // Execute the command
-rsync.execute(function(error, stdout, stderr) {
+rsync.execute(function(error, code, cmd) {
     // we're done
 });
 ```
@@ -177,22 +177,21 @@ var rsync = Rsync.build({
 ### execute(callback, stdoutHandler, stderrHandler)
 
 Execute the command. The callback function is called with an Error object (or null when there
-was none), the buffered output from stdout and stderr, the exit code from the executed command
-and the executed command as a String.
+was none), the exit code from the executed command and the executed command as a String.
 
 When `stdoutHandler` and `stderrHandler` functions are provided they will be used to stream
-data from stdout and stderr directly without buffering. The finish callback will still
-receive the buffered output.
+data from stdout and stderr directly without buffering. Any output handlers that were
+defined previously will be overwritten.
 
 ```javascript
 // simple execute
-rsync.execute(function(error, stdout, stderr, code, cmd) {
-
+rsync.execute(function(error, code, cmd) {
+    // we're done
 });
 
 // execute with stream callbacks
 rsync.execute(
-    function(error, stdout, stderr, code, cmd) {
+    function(error, code, cmd) {
         // we're done
     }, function(data){
         // do things like parse progress
