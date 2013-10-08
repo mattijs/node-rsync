@@ -748,17 +748,6 @@ function stripLeadingDashes(value) {
 }
 
 /**
- * Simple method for capturing output in a String
- * @param {ReadableStream} stream
- * @param {String} buffer
- */
-function captureOutput(stream, buffer) {
-    stream.on('data', function(chunk) {
-        buffer += chunk;
-    });
-}
-
-/**
  * Simple function for checking if a value is an Array. Will use the native
  * Array.isArray method if available.
  * @private
