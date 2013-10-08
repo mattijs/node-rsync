@@ -1,12 +1,42 @@
 var spawn = require('child_process').spawn;
 
 /**
- * Rsync wrapper.
+ * Rsync is a wrapper class to configure and execute an `rsync` command
+ * in a fluent and convenient way.
+ *
+ * A new command can be set up by creating a new `Rsync` instance of
+ * obtaining one through the `build` method.
+ *
+ * @example
+ *   // using the constructor
+ *   var rsync = new Rsync()
+ *       .source('/path/to/source')
+ *       .destination('myserver:destination/');
+ *
+ *   // using the build method with options
+ *   var rsync = Rsync.build({
+ *     source:      '/path/to/source',
+ *     destination: 'myserver:destination/'
+ *   });
+ *
+ * Executing the command can be done using the `execute` method. The command
+ * is executed as a child process and three callbacks can be registered. See
+ * the `execute` method for more details.
+ *
+ * @example
+ *   rsync.execute(function(error, code, cmd) {
+ *     // function called when the child process is finished
+ *   }, function(stdoutChunk) {
+ *     // function called when a chunk of text is received on stdout
+ *   }, function stderrChunk) {
+ *     // function called when a chunk of text is received on stderr
+ *   });
  *
  * @author      Mattijs Hoitink <mattijs@monkeyandmachine.com>
  * @copyright   Copyright (c) 2013, Mattijs Hoitink <mattijs@monkeyandmachine.com>
  * @license     The MIT License
  *
+ * @constructor
  * @param {Object} config Configuration settings for the Rsync wrapper.
  */
 function Rsync(config) {
@@ -385,17 +415,15 @@ Rsync.prototype.output = function(stdout, stderr) {
 /**
  * Execute the rsync command.
  *
- * The callback function is called with an Error object (or null when there was none), the
- * buffered output from stdout and stderr, the exit code from the executed command and the
- * executed command as a String.
+ * The callback function is called with an Error object (or null when there was none),
+ * the exit code from the executed command and the executed command as a String.
  *
  * When stdoutHandler and stderrHandler functions are provided they will be used to stream
- * data from stdout and stderr directly without buffering. The finish callback will still
- * receive the buffered output.
+ * data from stdout and stderr directly without buffering.
  *
- * @param {Function} callback       Called when rsync finishes
- * @param {Function} stdoutHandler  (optional) Called on each chunk received from stdout
- * @param {Function} stderrHandler  (optional) Called on each chunk received from stderr
+ * @param {Function} callback       Called when rsync finishes (optional)
+ * @param {Function} stdoutHandler  Called on each chunk received from stdout (optional)
+ * @param {Function} stderrHandler  Called on each chunk received from stderr (optional)
  */
 Rsync.prototype.execute = function(callback, stdoutHandler, stderrHandler) {
     // Register output handlers
@@ -429,22 +457,169 @@ Rsync.prototype.execute = function(callback, stdoutHandler, stderrHandler) {
     }.bind(this));
 };
 
+/**
+ * Get or set the debug property.
+ *
+ * The property is set to the boolean provided so unsetting the debug
+ * property has to be done by passing false to this method.
+ *
+ * @function
+ * @name debug
+ * @memberOf Rsync.prototype
+ * @param {Boolean} debug the value of the debug property (optional)
+ * @return {Rsync|Boolean}
+ */
 createValueAccessor('debug');
+
+/**
+ * Get or set the executable to use for the rsync process.
+ *
+ * When setting the executable path the Rsync instance is returned for
+ * the fluent interface. Otherwise the configured executable path
+ * is returned.
+ *
+ * @function
+ * @name executable
+ * @memberOf Rsync.prototype
+ * @param {String} executable path to the executable (optional)
+ * @return {Rsync|String}
+ */
 createValueAccessor('executable');
+
+/**
+ * Get or set the destination for the transfer.
+ *
+ * When setting the destination the Rsync instance is returned for
+ * the fluent interface. Otherwise the configured destination path
+ * is returned.
+ *
+ * @function
+ * @name destination
+ * @memberOf Rsync.prototype
+ * @param {String} destination the destination (optional)
+ * @return {Rsync|String}
+ */
 createValueAccessor('destination');
 
+/**
+ * Add one or more sources for the command or get the list of configured
+ * sources.
+ *
+ * The sources are appended to the list of known sources if they were not
+ * included yet and the Rsync instance is returned for the fluent
+ * interface. Otherwise the configured list of source is returned.
+ *
+ * @function
+ * @name source
+ * @memberOf Rsync.prototype
+ * @param {String|Array} sources the source or list of sources to configure (optional)
+ * @return {Rsync|Array}
+ */
 createListAccessor('source', '_sources');
 
+/**
+ * Set the shell to use when logging in on a remote server.
+ *
+ * This is the same as setting the `rsh` option.
+ *
+ * @function
+ * @name shell
+ * @memberOf Rsync.prototype
+ * @param {String} shell the shell option to use
+ * @return {Rsync}
+ */
 exposeLongOption('rsh', 'shell');
 
+/**
+ * Set the progress flag.
+ *
+ * This is the same as setting the `--progress` commandline flag.
+ *
+ * @function
+ * @name progress
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
 exposeShortOption('progress');
+
+/**
+ * Set the archive flag.
+ *
+ * @function
+ * @name archive
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
 exposeShortOption('a', 'archive');
+
+/**
+ * Set the compress flag.
+ *
+ * @function
+ * @name compress
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
 exposeShortOption('z', 'compress');
+
+/**
+ * Set the recursive flag.
+ *
+ * @function
+ * @name recursive
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
 exposeShortOption('r', 'recursive');
+
+/**
+ * Set the update flag.
+ *
+ * @function
+ * @name update
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
 exposeShortOption('u', 'update');
+
+/**
+ * Set the quiet flag.
+ *
+ * @function
+ * @name quiet
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
 exposeShortOption('q', 'quiet');
+
+/**
+ * Set the dirs flag.
+ *
+ * @function
+ * @name dirs
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
 exposeShortOption('d', 'dirs');
+
+/**
+ * Set the links flag.
+ *
+ * @function
+ * @name links
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
 exposeShortOption('l', 'links');
+
+/**
+ * Set the dry flag.
+ *
+ * @function
+ * @name dry
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
 exposeShortOption('n', 'dry');
 
 // our awesome export product
