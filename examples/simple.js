@@ -1,4 +1,4 @@
-/**
+/*
  * A simple example that builds and executes the following command:
  *
  *     rsync -avz --rsh 'ssh' /path/to/source you@server:/destination/path
@@ -12,7 +12,7 @@
 var Rsync = require('../rsync');
 var cmd;
 
-/**
+/*
  * Set up the command using the fluent interface, starting with an
  * empty command wrapper and adding options using methods.
  */
