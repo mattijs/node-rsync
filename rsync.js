@@ -6,10 +6,22 @@ var exec = require('child_process').exec;
  * @author      Mattijs Hoitink <mattijs@monkeyandmachine.com>
  * @copyright   Copyright (c) 2013, Mattijs Hoitink <mattijs@monkeyandmachine.com>
  * @license     The MIT License
+ *
+ *
  */
-function Rsync(options) {
+function Rsync(config) {
+    if (!(this instanceof Rsync)) {
+        return new Rsync(config);
+    }
+
+    // Parse config
+    config = config || {};
+    if (typeof(config) !== 'object') {
+        throw new Error('Rsync config must be an Object');
+    }
+
     // executable
-    this._executable = 'rsync';
+    this._executable = hasOP(config, 'executable') ? config.executable : 'rsync';
 
     // source(s) and destination
     this._sources     = [];
@@ -27,8 +39,8 @@ function Rsync(options) {
         stderr: null
     };
 
-    // internal debugging flag
-    this._debug = false;
+    // Debug parameter
+    this._debug  = hasOP(config, 'debug') ? config.debug : false;
 }
 
 /**
