@@ -1,4 +1,4 @@
-var exec = require('child_process').exec;
+var spawn = require('child_process').spawn;
 
 /**
  * Rsync wrapper.
@@ -7,7 +7,7 @@ var exec = require('child_process').exec;
  * @copyright   Copyright (c) 2013, Mattijs Hoitink <mattijs@monkeyandmachine.com>
  * @license     The MIT License
  *
- *
+ * @param {Object} config Configuration settings for the Rsync wrapper.
  */
 function Rsync(config) {
     if (!(this instanceof Rsync)) {
@@ -40,7 +40,7 @@ function Rsync(config) {
     };
 
     // Debug parameter
-    this._debug  = hasOP(config, 'debug') ? config.debug : false;
+    this._debug = hasOP(config, 'debug') ? config.debug : false;
 }
 
 /**
@@ -401,31 +401,19 @@ Rsync.prototype.execute = function(callback, stdoutHandler, stderrHandler) {
     // Register output handlers
     this.output(stdoutHandler, stderrHandler);
 
-    // Execute the command in a subshell
-    var cmd = this.command();
+    // Execute the command as a child process
+    var cmdProc = spawn(this.executable(), this.args(), { stdio: 'pipe' });
 
-    // output buffers
-    var stdoutBuffer = '',
-        stderrBuffer = '';
+    // Capture stdout and stderr if there are output handlers configured
+    if (typeof(this._outputHandlers.stdout) === 'function') {
+        cmdProc.stdout.on('data', this._outputHandlers.stdout);
+    }
+    if (typeof(this._outputHandlers.stderr) === 'function') {
+        cmdProc.stderr.on('data', this._outputHandlers.stderr);
+    }
 
-    // Execute the command and wait for it to finish
-    var command = exec(cmd);
-
-    // capture stdout and stderr
-    command.stdout.on('data', function(chunk) {
-        stdoutBuffer += chunk;
-        if (typeof(this._outputHandlers.stdout) === 'function') {
-            this._outputHandlers.stdout(chunk);
-        }
-    });
-    command.stderr.on('data', function(chunk) {
-        stderrBuffer += chunk;
-        if (typeof(this._outputHandlers.stdout) === 'function') {
-            this._outputHandlers.stdout(chunk);
-        }
-    });
-
-    command.on('exit', function(code) {
+    // Wait for the command to finish
+    cmdProc.on('close', function(code) {
         var error = null;
 
         // Check rsyncs error code
@@ -436,9 +424,9 @@ Rsync.prototype.execute = function(callback, stdoutHandler, stderrHandler) {
 
         // Check for callback
         if (typeof(callback) === 'function') {
-            callback(error, stdoutBuffer, stderrBuffer, code, cmd);
+            callback(error, code, this.command());
         }
-    });
+    }.bind(this));
 };
 
 createValueAccessor('debug');
@@ -459,7 +447,7 @@ exposeShortOption('d', 'dirs');
 exposeShortOption('l', 'links');
 exposeShortOption('n', 'dry');
 
-// our awesome export products
+// our awesome export product
 module.exports = Rsync;
 
 /* **** */
