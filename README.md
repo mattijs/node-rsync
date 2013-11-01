@@ -345,3 +345,21 @@ For adding a new shorthand method there are a few simple steps to take:
 When adding a shorthand make sure it does not already exist, it is a sane name and a shorthand is necessary.
 
 If there is something broken (which there probably is), the same applies: fork, patch, pull request. Opening an issue is also possible.
+
+# Changelog
+
+v0.1.0
+
+  - better support for include/exclude filters
+  - better support for output handlers
+  - removed output buffering (#6)
+  - use spawn instead of exec (#6)
+
+v0.0.2
+
+  - swapped exclude and include order
+  - better shell escaping
+
+v0.0.1
+
+  - initial version (actually the second)
