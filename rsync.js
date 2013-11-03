@@ -355,11 +355,15 @@ Rsync.prototype.args = function() {
         }
     }
 
-    // Add short options if any are present
-    if (short.length > 0) args.push('-' + short.join(''));
+    // Add combined short options if any are present
+    if (short.length > 0) {
+        args.push('-' + short.join(''));
+    }
 
     // Add long options if any are present
-    if (long.length > 0)  args.push(long.join(' '));
+    if (long.length > 0) {
+        args = args.concat(long);
+    }
 
     // Add includes/excludes in order
     this._patterns.forEach(function(def) {
@@ -374,11 +378,15 @@ Rsync.prototype.args = function() {
         }
     });
 
-    // Add source(s) and destination
-    args.push(
-        this.source().join(' '),
-        this.destination()
-    );
+    // Add sources
+    if (this.source().length > 0) {
+        args = args.concat(this.source());
+    }
+
+    // Add destination
+    if (this.destination()) {
+        args.push(this.destination());
+    }
 
     return args;
 };
