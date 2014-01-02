@@ -539,6 +539,18 @@ createListAccessor('source', '_sources');
 exposeLongOption('rsh', 'shell');
 
 /**
+ * Set the delete flag.
+ *
+ * This is the same as setting the `--delete` commandline flag.
+ *
+ * @function
+ * @name delete
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
+exposeShortOption('delete');
+
+/**
  * Set the progress flag.
  *
  * This is the same as setting the `--progress` commandline flag.
