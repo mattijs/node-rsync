@@ -206,6 +206,7 @@ rsync.execute(
 The following option shorthand methods are available:
 
   - **shell(value)**: `--rsh=SHELL`
+  - **delete()**: `--delete`
   - **progress()**: `--progress`
   - **archive()**: `-a`
   - **compress()**: `-z`
