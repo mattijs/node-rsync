@@ -349,7 +349,7 @@ Rsync.prototype.args = function() {
                 short.push(key);
             }
             else {
-                long.push(buildOption(key, value));
+                addOption(long, key, value);
             }
 
         }
@@ -368,10 +368,10 @@ Rsync.prototype.args = function() {
     // Add includes/excludes in order
     this._patterns.forEach(function(def) {
         if (def.action === '-') {
-            args.push(buildOption('exclude', def.pattern));
+            addOption(args, 'exclude', def.pattern);
         }
         else if (def.action === '+') {
-            args.push(buildOption('include', def.pattern));
+            addOption(args, 'include', def.pattern);
         }
         else {
             debug(this, 'Unknown pattern action ' + def.action);
@@ -724,34 +724,28 @@ function exposeLongOption(option, name) {
 }
 
 /**
- * Build an option for use in a shell command.
+ * Prepare and add an option as argument for use in child_process.spawn()
+ * @param {Array} args
  * @param {String} name
- * @param {String} vlaue
- * @return {String}
+ * @param {String} value
+ * @return {Array} args for adding more options if desired
  */
-function buildOption(name, value) {
+function addOption(args, name, value) {
     var single = (name.length === 1) ? true : false;
 
-    // Decide on prefix and value glue
+    // Decide on prefix
     var prefix = (single) ? '-' : '--';
-    var glue   = (single) ? ' ' : '=';
 
     // Build the option
     var option = prefix + name;
-    if (arguments.length > 1 && value) {
-        option += glue + escapeShellArg(String(value));
+    if (!single && value) {
+        option += '=' + String(value);
+        value = null;
     }
-
-    return option;
-}
-
-/**
- * Escape an argument for use in a shell command.
- * @param {String} arg
- * @return {String}
- */
-function escapeShellArg(arg) {
-  return '"' + arg.replace(/(["'`\\])/g, '\\$1') + '"';
+    args.push(option);
+    if (value) args.push(String(value));
+    
+    return args;
 }
 
 /**
