@@ -405,7 +405,7 @@ Rsync.prototype.args = function() {
  */
 Rsync.prototype.output = function(stdout, stderr) {
     // Check for single argument so the method can be used with Rsync.build
-    if (arguments.length === 1 && Array.isaArray(stdout)) {
+    if (arguments.length === 1 && Array.isArray(stdout)) {
         stderr = stdout[1];
         stdout = stdout[0];
     }
