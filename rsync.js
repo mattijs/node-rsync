@@ -440,7 +440,6 @@ Rsync.prototype.execute = function(callback, stdoutHandler, stderrHandler) {
     // Execute the command as a child process
     // see https://github.com/joyent/node/blob/937e2e351b2450cf1e9c4d8b3e1a4e2a2def58bb/lib/child_process.js#L589
     var cmdProc;
-    console.log(this.command());
     if ('win32' === process.platform) {
         cmdProc = spawn('cmd.exe', ['/s', '/c', '"' + this.command() + '"'],
                         { stdio: 'pipe' });
