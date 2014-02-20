@@ -264,7 +264,7 @@ Rsync.prototype.patterns = function(patterns) {
             throw new Error('Invalid pattern');
         }
     }, this);
-}
+};
 
 /**
  * Exclude a file pattern from transfer. The pattern will be appended to the ordered list
@@ -286,7 +286,7 @@ Rsync.prototype.exclude = function(patterns) {
     }, this);
 
     return this;
-}
+};
 
 /**
  * Include a file pattern for transfer. The pattern will be appended to the ordered list
@@ -308,7 +308,7 @@ Rsync.prototype.include = function(patterns) {
     }, this);
 
     return this;
-}
+};
 
 /**
  * Get the command that is going to be executed.
@@ -418,7 +418,7 @@ Rsync.prototype.output = function(stdout, stderr) {
     }
 
     return this;
-}
+};
 
 /**
  * Execute the rsync command.
@@ -735,10 +735,15 @@ function exposeLongOption(option, name) {
 /**
  * Build an option for use in a shell command.
  * @param {String} name
- * @param {String} vlaue
+ * @param {String} value
+ * @param {Boolean} escape
  * @return {String}
  */
-function buildOption(name, value) {
+function buildOption(name, value, escape) {
+    // Make sure the escape argument is a Boolean
+    escape = !!escape;
+
+    // Detect single option key
     var single = (name.length === 1) ? true : false;
 
     // Decide on prefix and value glue
@@ -748,7 +753,8 @@ function buildOption(name, value) {
     // Build the option
     var option = prefix + name;
     if (arguments.length > 1 && value) {
-        option += glue + escapeShellArg(String(value));
+        value   = (!escape) ? String(value) : escapeShellArg(String(value));
+        option += glue + value;
     }
 
     return option;
@@ -757,10 +763,12 @@ function buildOption(name, value) {
 /**
  * Escape an argument for use in a shell command.
  * @param {String} arg
+ * @param {String} char
  * @return {String}
  */
-function escapeShellArg(arg) {
-  return '"' + arg.replace(/(["'`\\])/g, '\\$1') + '"';
+function escapeShellArg(arg, char) {
+  char = char || '"';
+  return char + arg.replace(/(["'`\\])/g, '\\$1') + char;
 }
 
 /**
