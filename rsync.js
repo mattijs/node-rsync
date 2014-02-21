@@ -741,7 +741,7 @@ function exposeLongOption(option, name) {
  */
 function buildOption(name, value, escape) {
     // Make sure the escape argument is a Boolean
-    escape = !!escape;
+    escape = (typeof esacpe === 'boolean') ? escape : true;
 
     // Detect single option key
     var single = (name.length === 1) ? true : false;
