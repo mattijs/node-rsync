@@ -264,7 +264,7 @@ Rsync.prototype.patterns = function(patterns) {
             throw new Error('Invalid pattern');
         }
     }, this);
-}
+};
 
 /**
  * Exclude a file pattern from transfer. The pattern will be appended to the ordered list
@@ -286,7 +286,7 @@ Rsync.prototype.exclude = function(patterns) {
     }, this);
 
     return this;
-}
+};
 
 /**
  * Include a file pattern for transfer. The pattern will be appended to the ordered list
@@ -308,7 +308,7 @@ Rsync.prototype.include = function(patterns) {
     }, this);
 
     return this;
-}
+};
 
 /**
  * Get the command that is going to be executed.
@@ -405,7 +405,7 @@ Rsync.prototype.args = function() {
  */
 Rsync.prototype.output = function(stdout, stderr) {
     // Check for single argument so the method can be used with Rsync.build
-    if (arguments.length === 1 && Array.isaArray(stdout)) {
+    if (arguments.length === 1 && Array.isArray(stdout)) {
         stderr = stdout[1];
         stdout = stdout[0];
     }
@@ -418,7 +418,7 @@ Rsync.prototype.output = function(stdout, stderr) {
     }
 
     return this;
-}
+};
 
 /**
  * Execute the rsync command.
@@ -438,7 +438,16 @@ Rsync.prototype.execute = function(callback, stdoutHandler, stderrHandler) {
     this.output(stdoutHandler, stderrHandler);
 
     // Execute the command as a child process
-    var cmdProc = spawn(this.executable(), this.args(), { stdio: 'pipe' });
+    // see https://github.com/joyent/node/blob/937e2e351b2450cf1e9c4d8b3e1a4e2a2def58bb/lib/child_process.js#L589
+    var cmdProc;
+    if ('win32' === process.platform) {
+        cmdProc = spawn('cmd.exe', ['/s', '/c', '"' + this.command() + '"'],
+                        { stdio: 'pipe' });
+    }
+    else {
+        cmdProc = spawn('/bin/sh', ['-c', this.command()],
+                        { stdio: 'pipe' });
+    }
 
     // Capture stdout and stderr if there are output handlers configured
     if (typeof(this._outputHandlers.stdout) === 'function') {
@@ -726,10 +735,15 @@ function exposeLongOption(option, name) {
 /**
  * Build an option for use in a shell command.
  * @param {String} name
- * @param {String} vlaue
+ * @param {String} value
+ * @param {Boolean} escape
  * @return {String}
  */
-function buildOption(name, value) {
+function buildOption(name, value, escape) {
+    // Make sure the escape argument is a Boolean
+    escape = (typeof esacpe === 'boolean') ? escape : true;
+
+    // Detect single option key
     var single = (name.length === 1) ? true : false;
 
     // Decide on prefix and value glue
@@ -739,7 +753,8 @@ function buildOption(name, value) {
     // Build the option
     var option = prefix + name;
     if (arguments.length > 1 && value) {
-        option += glue + escapeShellArg(String(value));
+        value   = (!escape) ? String(value) : escapeShellArg(String(value));
+        option += glue + value;
     }
 
     return option;
@@ -748,10 +763,12 @@ function buildOption(name, value) {
 /**
  * Escape an argument for use in a shell command.
  * @param {String} arg
+ * @param {String} char
  * @return {String}
  */
-function escapeShellArg(arg) {
-  return '"' + arg.replace(/(["'`\\])/g, '\\$1') + '"';
+function escapeShellArg(arg, char) {
+  char = char || '"';
+  return char + arg.replace(/(["'`\\])/g, '\\$1') + char;
 }
 
 /**

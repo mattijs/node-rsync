@@ -15,5 +15,12 @@
   ],
   "author": "Mattijs Hoitink <mattijs@monkeyandmachine.com>",
   "license": "MIT",
-  "readmeFilename": "README.md"
+  "readmeFilename": "README.md",
+  "devDependencies": {
+    "mocha": "~1.17.1",
+    "chai": "~1.9.0"
+  },
+  "scripts": {
+    "test": "node_modules/.bin/mocha -R spec test/*.test.js"
+  }
 }
