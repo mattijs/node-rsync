@@ -442,7 +442,7 @@ Rsync.prototype.execute = function(callback, stdoutHandler, stderrHandler) {
     var cmdProc;
     if ('win32' === process.platform) {
         cmdProc = spawn('cmd.exe', ['/s', '/c', '"' + this.command() + '"'],
-                        { stdio: 'pipe' });
+                        { stdio: 'pipe', windowsVerbatimArguments: true });
     }
     else {
         cmdProc = spawn('/bin/sh', ['-c', this.command()],
