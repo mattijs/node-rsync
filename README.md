@@ -1,5 +1,7 @@
 # Rsync
 
+`Rsync` is a class for building and executing `rsync` commands with Node.js.
+
 ## Installation
 
 Installation goes through NPM:
