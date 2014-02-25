@@ -349,12 +349,21 @@ If there is something broken (which there probably is), the same applies: fork, 
 
 # Changelog
 
+v0.3.0
+
+  - Launch the command under a shell (#15)
+  - Typo fix isaArray -> isArray for issue (#14)
+  - Error: rsync exited with code 14 (#11)
+
+v0.2.0
+
+  - use spawn instead of exec (#6)
+
 v0.1.0
 
   - better support for include/exclude filters
   - better support for output handlers
   - removed output buffering (#6)
-  - use spawn instead of exec (#6)
 
 v0.0.2
 
