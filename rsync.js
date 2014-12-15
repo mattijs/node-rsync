@@ -1,4 +1,5 @@
 var spawn = require('child_process').spawn;
+var fs = require('fs');
 
 /**
  * Rsync is a wrapper class to configure and execute an `rsync` command
@@ -445,7 +446,18 @@ Rsync.prototype.execute = function(callback, stdoutHandler, stderrHandler) {
                         { stdio: 'pipe', windowsVerbatimArguments: true });
     }
     else {
-        cmdProc = spawn('/bin/sh', ['-c', this.command()],
+        // See what /bin/sh points to.  Dash (from debian, at least) doesn't do proper process control
+        var shell = '/bin/sh';
+        var stat = fs.lstatSync(shell);
+        if (stat.isSymbolicLink()) {
+          var realShell = fs.readlinkSync(shell);
+          // If it's dash, use bash instead if it's there
+          if (((realShell == "dash") || (realShell == "/bin/dash")) && fs.existsSync("/bin/bash")) {
+            shell = "/bin/bash";
+          }
+        }
+
+        cmdProc = spawn(shell, ['-c', this.command()],
                         { stdio: 'pipe' });
     }
 
@@ -472,6 +484,9 @@ Rsync.prototype.execute = function(callback, stdoutHandler, stderrHandler) {
             callback(error, code, this.command());
         }
     }.bind(this));
+
+    // Return the child process object so it can be cleaned up if the process exits
+    return(cmdProc);
 };
 
 /**
