@@ -229,6 +229,10 @@ These methods can be used to get or set values in a chainable way. When the meth
 
 Get or set the executable to use as the rsync command.
 
+### unixshell(shell)
+
+Get or set the shell to use to launch the rsync command on non-Windows systems.
+
 ### destination(destination)
 
 Get or set the destination for the rsync command.

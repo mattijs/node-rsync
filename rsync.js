@@ -53,6 +53,9 @@ function Rsync(config) {
     // executable
     this._executable = hasOP(config, 'executable') ? config.executable : 'rsync';
 
+    // shell
+    this._unixshell = hasOP(config, 'unixshell') ? config.unixshell : '/bin/sh';
+
     // source(s) and destination
     this._sources     = [];
     this._destination = '';
@@ -445,7 +448,7 @@ Rsync.prototype.execute = function(callback, stdoutHandler, stderrHandler) {
                         { stdio: 'pipe', windowsVerbatimArguments: true });
     }
     else {
-        cmdProc = spawn('/bin/sh', ['-c', this.command()],
+        cmdProc = spawn(this._unixshell, ['-c', this.command()],
                         { stdio: 'pipe' });
     }
 
@@ -502,6 +505,20 @@ createValueAccessor('debug');
  * @return {Rsync|String}
  */
 createValueAccessor('executable');
+
+/**
+ * Get or set the shell to use on non-Windows systems.
+ *
+ * When setting the shell the Rsync instance is returned for the 
+ * fluent interface. Otherwise the configured shell is returned.
+ *
+ * @function
+ * @name unixshell
+ * @memberOf Rsync.prototype
+ * @param {String} shell to use on non-Windows systems (optional)
+ * @return {Rsync|String}
+ */
+createValueAccessor('unixshell');
 
 /**
  * Get or set the destination for the transfer.
