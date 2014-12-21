@@ -475,6 +475,10 @@ Rsync.prototype.execute = function(callback, stdoutHandler, stderrHandler) {
             callback(error, code, this.command());
         }
     }.bind(this));
+
+    // Return the child process object so it can be cleaned up
+    // if the process exits
+    return(cmdProc);
 };
 
 /**

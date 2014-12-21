@@ -185,14 +185,28 @@ When `stdoutHandler` and `stderrHandler` functions are provided they will be use
 data from stdout and stderr directly without buffering. Any output handlers that were
 defined previously will be overwritten.
 
+The function returns the child process object, which can be used to kill the 
+rsync process or clean up if the main program exits early.
+
 ```javascript
+// signal handler function
+var quitting = function() {
+  if (rsyncPid) {
+    rsyncPid.kill();
+  }
+  process.exit();
+}
+process.on("SIGINT", quitting); // run signal handler on CTRL-C
+process.on("SIGTERM", quitting); // run signal handler on SIGTERM
+process.on("exit", quitting); // run signal handler when main process exits
+
 // simple execute
-rsync.execute(function(error, code, cmd) {
+var rsyncPid = rsync.execute(function(error, code, cmd) {
     // we're done
 });
 
 // execute with stream callbacks
-rsync.execute(
+var rsyncPid = rsync.execute(
     function(error, code, cmd) {
         // we're done
     }, function(data){
