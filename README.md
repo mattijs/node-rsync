@@ -243,9 +243,11 @@ These methods can be used to get or set values in a chainable way. When the meth
 
 Get or set the executable to use as the rsync command.
 
-### unixshell(shell)
+### executableShell(shell)
 
-Get or set the shell to use to launch the rsync command on non-Windows systems.
+Get or set the shell to use to launch the rsync command on non-Windows (Unix and Mac OS X) systems.  The default shell is /bin/sh.  
+
+On some systems (Debian, for example) /bin/sh links to /bin/dash, which does not do proper process control.  If you have problems with leftover processes, try a different shell such as /bin/bash.
 
 ### destination(destination)
 
