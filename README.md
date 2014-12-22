@@ -185,14 +185,28 @@ When `stdoutHandler` and `stderrHandler` functions are provided they will be use
 data from stdout and stderr directly without buffering. Any output handlers that were
 defined previously will be overwritten.
 
+The function returns the child process object, which can be used to kill the 
+rsync process or clean up if the main program exits early.
+
 ```javascript
+// signal handler function
+var quitting = function() {
+  if (rsyncPid) {
+    rsyncPid.kill();
+  }
+  process.exit();
+}
+process.on("SIGINT", quitting); // run signal handler on CTRL-C
+process.on("SIGTERM", quitting); // run signal handler on SIGTERM
+process.on("exit", quitting); // run signal handler when main process exits
+
 // simple execute
-rsync.execute(function(error, code, cmd) {
+var rsyncPid = rsync.execute(function(error, code, cmd) {
     // we're done
 });
 
 // execute with stream callbacks
-rsync.execute(
+var rsyncPid = rsync.execute(
     function(error, code, cmd) {
         // we're done
     }, function(data){
@@ -228,6 +242,12 @@ These methods can be used to get or set values in a chainable way. When the meth
 ### executable(executable)
 
 Get or set the executable to use as the rsync command.
+
+### executableShell(shell)
+
+Get or set the shell to use to launch the rsync command on non-Windows (Unix and Mac OS X) systems.  The default shell is /bin/sh.  
+
+On some systems (Debian, for example) /bin/sh links to /bin/dash, which does not do proper process control.  If you have problems with leftover processes, try a different shell such as /bin/bash.
 
 ### destination(destination)
 
