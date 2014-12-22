@@ -21,6 +21,6 @@
     "chai": "~1.9.0"
   },
   "scripts": {
-    "test": "node_modules/.bin/mocha -R spec test/*.test.js"
+    "test": "node_modules/.bin/mocha -R spec tests/*.test.js"
   }
 }
