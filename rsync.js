@@ -383,12 +383,12 @@ Rsync.prototype.args = function() {
 
     // Add sources
     if (this.source().length > 0) {
-        args = args.concat(this.source());
+        args = args.concat(this.source().map(escapeShellArg));
     }
 
     // Add destination
     if (this.destination()) {
-        args.push(this.destination());
+        args.push(escapeShellArg(this.destination()));
     }
 
     return args;
@@ -757,13 +757,9 @@ function exposeLongOption(option, name) {
  * Build an option for use in a shell command.
  * @param {String} name
  * @param {String} value
- * @param {Boolean} escape
  * @return {String}
  */
-function buildOption(name, value, escape) {
-    // Make sure the escape argument is a Boolean
-    escape = (typeof esacpe === 'boolean') ? escape : true;
-
+function buildOption(name, value) {
     // Detect single option key
     var single = (name.length === 1) ? true : false;
 
@@ -774,7 +770,7 @@ function buildOption(name, value, escape) {
     // Build the option
     var option = prefix + name;
     if (arguments.length > 1 && value) {
-        value   = (!escape) ? String(value) : escapeShellArg(String(value));
+        value   = escapeShellArg(String(value));
         option += glue + value;
     }
 
@@ -782,14 +778,15 @@ function buildOption(name, value, escape) {
 }
 
 /**
- * Escape an argument for use in a shell command.
+ * Escape an argument for use in a shell command when necessary.
  * @param {String} arg
- * @param {String} char
  * @return {String}
  */
-function escapeShellArg(arg, char) {
-  char = char || '"';
-  return char + arg.replace(/(["'`\\])/g, '\\$1') + char;
+function escapeShellArg(arg) {
+  if (!/(["'`\\$ ])/.test(arg)) {
+    return arg;
+  }
+  return '"' + arg.replace(/(["'`\\$])/g, '\\$1') + '"';
 }
 
 /**
