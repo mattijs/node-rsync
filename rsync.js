@@ -790,6 +790,15 @@ function escapeShellArg(arg) {
 }
 
 /**
+ * Escape a filename for use in a shell command.
+ * @param {String} filename the filename to escape
+ * @return {String} the escaped version of the filename
+ */
+function escapeFilename(filename) {
+  return filename.replace(/(["'`\s\\])/g,'\\$1');
+}
+
+/**
  * Strip the leading dashes from a value.
  * @param {String} value
  * @return {String}
