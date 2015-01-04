@@ -17,8 +17,9 @@
   "license": "MIT",
   "readmeFilename": "README.md",
   "devDependencies": {
+    "chai": "~1.9.0",
     "mocha": "~1.17.1",
-    "chai": "~1.9.0"
+    "sinon": "^1.12.2"
   },
   "scripts": {
     "test": "node_modules/.bin/mocha -R spec tests/*.test.js"
