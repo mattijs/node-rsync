@@ -371,6 +371,12 @@ If there is something broken (which there probably is), the same applies: fork, 
 
 # Changelog
 
+v0.4.0
+
+  - Child process pid is returned from `execute` (#27)
+  - Command execution shell is configurable for Unix systems (#27)
+  - Better escaping for filenames with spaces (#24)
+
 v0.3.0
 
   - Launch the command under a shell (#15)
