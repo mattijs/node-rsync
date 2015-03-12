@@ -358,7 +358,7 @@ Rsync.prototype.args = function() {
                 short.push(key);
             }
             else {
-                long.push(buildOption(key, value));
+                long.push(buildOption(key, value, escapeShellArg));
             }
 
         }
@@ -377,10 +377,10 @@ Rsync.prototype.args = function() {
     // Add includes/excludes in order
     this._patterns.forEach(function(def) {
         if (def.action === '-') {
-            args.push(buildOption('exclude', def.pattern));
+            args.push(buildOption('exclude', def.pattern, escapeFileArg));
         }
         else if (def.action === '+') {
-            args.push(buildOption('include', def.pattern));
+            args.push(buildOption('include', def.pattern, escapeFileArg));
         }
         else {
             debug(this, 'Unknown pattern action ' + def.action);
@@ -389,12 +389,12 @@ Rsync.prototype.args = function() {
 
     // Add sources
     if (this.source().length > 0) {
-        args = args.concat(this.source().map(escapeShellArg));
+        args = args.concat(this.source().map(escapeFileArg));
     }
 
     // Add destination
     if (this.destination()) {
-        args.push(escapeShellArg(this.destination()));
+        args.push(escapeFileArg(this.destination()));
     }
 
     return args;
@@ -761,11 +761,21 @@ function exposeLongOption(option, name) {
 
 /**
  * Build an option for use in a shell command.
+ *
  * @param {String} name
  * @param {String} value
+ * @param {Function|boolean} escapeArg
  * @return {String}
  */
-function buildOption(name, value) {
+function buildOption(name, value, escapeArg) {
+    if (typeof escapeArg === 'boolean') {
+        escapeArg = (!escapeArg) ? noop : null;
+    }
+
+    if (typeof escapeArg !== 'function') {
+        escapeArg = escapeShellArg;
+    }
+
     // Detect single option key
     var single = (name.length === 1) ? true : false;
 
@@ -776,7 +786,7 @@ function buildOption(name, value) {
     // Build the option
     var option = prefix + name;
     if (arguments.length > 1 && value) {
-        value   = escapeShellArg(String(value));
+        value   = escapeArg(String(value));
         option += glue + value;
     }
 
@@ -800,7 +810,7 @@ function escapeShellArg(arg) {
  * @param {String} filename the filename to escape
  * @return {String} the escaped version of the filename
  */
-function escapeFilename(filename) {
+function escapeFileArg(filename) {
   return filename.replace(/(["'`\s\\])/g,'\\$1');
 }
 
@@ -844,6 +854,8 @@ function isArray(value) {
 function hasOP(obj, key) {
     return Object.prototype.hasOwnProperty.call(obj, key);
 }
+
+function noop() {}
 
 /**
  * Simple debug printer.
