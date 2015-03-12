@@ -207,6 +207,7 @@ Rsync.prototype.isSet = function(option) {
  * @return mixed
  */
 Rsync.prototype.option = function(name) {
+    name = stripLeadingDashes(name);
     return this._options[name];
 };
 
