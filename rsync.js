@@ -161,6 +161,9 @@ Rsync.prototype.flags = function(flags, set) {
         else {
             set = true;
         }
+
+        // Join the remainder of the arguments to treat them as flags
+        flags = flags.join('');
     }
 
     // Split multiple flags
