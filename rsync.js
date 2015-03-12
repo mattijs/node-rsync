@@ -230,7 +230,7 @@ Rsync.prototype.option = function(name) {
  *   // using Rsync.build for a new rsync object
  *   rsync = Rsync.build({
  *     ...
- *     patterns: [ '-docs', { action: '+', pattern: '/subdior/*.py' }]
+ *     patterns: [ '-docs', { action: '+', pattern: '/subdir/*.py' }]
  *     ...
  *   })
  *
@@ -268,9 +268,11 @@ Rsync.prototype.patterns = function(patterns) {
             this.include(pattern);
         }
         else {
-            throw new Error('Invalid pattern');
+            throw new Error('Invalid pattern: ' + pattern);
         }
     }, this);
+
+    return this;
 };
 
 /**
