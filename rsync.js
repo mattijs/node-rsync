@@ -519,7 +519,7 @@ createValueAccessor('executable');
 /**
  * Get or set the shell to use on non-Windows (Unix or Mac OS X) systems.
  *
- * When setting the shell the Rsync instance is returned for the 
+ * When setting the shell the Rsync instance is returned for the
  * fluent interface. Otherwise the configured shell is returned.
  *
  * @function
@@ -799,10 +799,11 @@ function buildOption(name, value, escapeArg) {
  * @return {String}
  */
 function escapeShellArg(arg) {
-  if (!/(["'`\\$ ])/.test(arg)) {
-    return arg;
-  }
-  return '"' + arg.replace(/(["'`\\$])/g, '\\$1') + '"';
+  //if (!/(["'`\\$ ])/.test(arg)) {
+  //  return arg;
+  //}
+  //return '"' + arg.replace(/(["'`\\$])/g, '\\$1') + '"';
+  return '"' + arg + '"';
 }
 
 /**
