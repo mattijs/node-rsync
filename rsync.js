@@ -319,7 +319,6 @@ Rsync.prototype.include = function(patterns) {
     return this;
 };
 
-
 /**
  * Get the command that is going to be executed.
  * @return {String}
