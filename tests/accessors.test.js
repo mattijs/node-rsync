@@ -3,6 +3,7 @@
 var Rsync = require('../rsync');
 var assert = require('chai').assert;
 var assertOutput = require('./helpers/output').assertOutput;
+var path = require('path');
 
 
 describe('accessors', function () {
@@ -32,6 +33,20 @@ describe('accessors', function () {
         });
 
         assert.equal('/bin/zsh', rsync.executableShell(), 'executableShell was set');
+      });
+
+    });
+
+    describe('#cwd', function () {
+
+      it('should set the the executable shell to use', function () {
+        var rsync = Rsync.build({
+          'source':           'a.txt',
+          'destination':      'b.txt',
+          'cwd':  __dirname + '/..'
+        });
+
+        assert.equal(path.resolve(__dirname, '..'), rsync.cwd(), 'cwd was set');
       });
 
     });
