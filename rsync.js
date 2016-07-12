@@ -1,4 +1,5 @@
 var spawn = require('child_process').spawn;
+var path = require('path');
 
 /**
  * Rsync is a wrapper class to configure and execute an `rsync` command
@@ -71,6 +72,8 @@ function Rsync(config) {
         stdout: null,
         stderr: null
     };
+
+    this._cwd = process.cwd();
 
     // Debug parameter
     this._debug = hasOP(config, 'debug') ? config.debug : false;
@@ -401,6 +404,24 @@ Rsync.prototype.args = function() {
 };
 
 /**
+ * Get and set rsync process cwd directory.
+ *
+ * @param  {string} cwd= Directory path relative to current process directory.
+ * @return {string} Return current _cwd.
+ */
+Rsync.prototype.cwd = function(cwd) {
+    if (arguments.length > 0) {
+        if (typeof cwd !== 'string') {
+            throw new Error('Directory should be a string');
+        }
+
+        this._cwd = path.resolve(cwd);
+    }
+
+    return this._cwd;
+};
+
+/**
  * Register an output handlers for the commands stdout and stderr streams.
  * These functions will be called once data is streamed on one of the output buffers
  * when the command is executed using `execute`.
@@ -451,11 +472,11 @@ Rsync.prototype.execute = function(callback, stdoutHandler, stderrHandler) {
     var cmdProc;
     if ('win32' === process.platform) {
         cmdProc = spawn('cmd.exe', ['/s', '/c', '"' + this.command() + '"'],
-                        { stdio: 'pipe', windowsVerbatimArguments: true });
+                        { stdio: 'pipe', windowsVerbatimArguments: true, cwd: this._cwd });
     }
     else {
         cmdProc = spawn(this._executableShell, ['-c', this.command()],
-                        { stdio: 'pipe' });
+                        { stdio: 'pipe', cwd: this._cwd });
     }
 
     // Capture stdout and stderr if there are output handlers configured
@@ -519,7 +540,7 @@ createValueAccessor('executable');
 /**
  * Get or set the shell to use on non-Windows (Unix or Mac OS X) systems.
  *
- * When setting the shell the Rsync instance is returned for the 
+ * When setting the shell the Rsync instance is returned for the
  * fluent interface. Otherwise the configured shell is returned.
  *
  * @function
