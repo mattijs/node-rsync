@@ -234,6 +234,8 @@ The following option shorthand methods are available:
   - **dirs()**: `-d`
   - **links()**: `-l`
   - **dry()**: `-n`
+  - **chmod(value)**: --chmod=VALUE (accumulative)
+  - **perms()**: -p
 
 All shorthand methods are chainable as long as options that require a value are provided with one.
 
@@ -363,7 +365,7 @@ If there is something missing (which there probably is) just fork, patch and sen
 
 For adding a new shorthand method there are a few simple steps to take:
 - Fork
-- Add the option through the `exposeShortOption` or `exposeLongOption` functions. For examples see the source file.
+- Add the option through the `exposeShortOption`, `exposeLongOption` or `exposeMultiOption` functions. For examples see the source file.
 - Update this README file to list the new shorthand method
 - Make a pull request
 
