@@ -60,9 +60,6 @@ function Rsync(config) {
     this._sources     = [];
     this._destination = '';
 
-    // chmod
-    this._chmod = [];
-
     // ordered list of file patterns to include/exclude
     this._patterns = [];
 
@@ -361,17 +358,17 @@ Rsync.prototype.args = function() {
                 short.push(key);
             }
             else {
-                long.push(buildOption(key, value, escapeShellArg));
+                if (isArray(value)) {
+                    value.forEach(function (val) {
+                        long.push(buildOption(key, val, escapeShellArg));
+                    });
+                }
+                else {
+                    long.push(buildOption(key, value, escapeShellArg));
+                }
             }
 
         }
-    }
-
-    // Add chmod as long options
-    if (this._chmod.length > 0) {
-      this._chmod.forEach(function (value) {
-          long.push(buildOption('chmod', value, escapeShellArg));
-      })
     }
 
     // Add combined short options if any are present
@@ -593,7 +590,7 @@ exposeLongOption('rsh', 'shell');
  * @param {String|Array}
  * @return {Rsync|Array}
  */
-createListAccessor('chmod', '_chmod');
+exposeMultiOption('chmod', 'chmod');
 
 /**
  * Set the delete flag.
@@ -770,6 +767,49 @@ function exposeShortOption(option, name) {
 
         var method = (set) ? 'set' : 'unset';
         return this[method](option);
+    };
+}
+
+/**
+ * Create a function for an option that can be set multiple time. The option
+ * will accumulate all values.
+ *
+ * @param {String} option
+ * @param {[String]} name
+ */
+function exposeMultiOption(option, name) {
+    name = name || option;
+
+    Rsync.prototype[name] = function(value) {
+        // When not arguments are passed in assume the options
+        // current value is requested
+        if (!arguments.length) return this.option(option);
+
+        if (!value) {
+            // Unset the option on falsy
+            this.unset(option);
+        }
+        else if (isArray(value)) {
+            // Call this method for each array value
+            value.forEach(this[name], this);
+        }
+        else {
+            // Add the value
+            let current = this.option(option);
+            if (!current) {
+                value = [ value ];
+            }
+            else if (!isArray(current)) {
+              value = [ current, value ];
+            }
+            else {
+                value = current.concat(value);
+            }
+
+            this.set(option, value);
+        }
+
+        return this;
     };
 }
 
