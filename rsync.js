@@ -60,6 +60,9 @@ function Rsync(config) {
     this._sources     = [];
     this._destination = '';
 
+    // chmod
+    this._chmod = [];
+
     // ordered list of file patterns to include/exclude
     this._patterns = [];
 
@@ -364,6 +367,13 @@ Rsync.prototype.args = function() {
         }
     }
 
+    // Add chmod as long options
+    if (this._chmod.length > 0) {
+      this._chmod.forEach(function (value) {
+          long.push(buildOption('chmod', value, escapeShellArg));
+      })
+    }
+
     // Add combined short options if any are present
     if (short.length > 0) {
         args.push('-' + short.join(''));
@@ -575,6 +585,17 @@ createListAccessor('source', '_sources');
 exposeLongOption('rsh', 'shell');
 
 /**
+ * Add a chmod instruction to the command.
+ *
+ * @function
+ * @name chmod
+ * @memberOf Rsync.prototype
+ * @param {String|Array}
+ * @return {Rsync|Array}
+ */
+createListAccessor('chmod', '_chmod');
+
+/**
  * Set the delete flag.
  *
  * This is the same as setting the `--delete` commandline flag.
@@ -677,6 +698,17 @@ exposeShortOption('l', 'links');
  * @return {Rsync}
  */
 exposeShortOption('n', 'dry');
+
+/**
+ * Set the perms flag.
+ *
+ * @function
+ * @name perms
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
+exposeShortOption('p', 'perms');
+
 
 // our awesome export product
 module.exports = Rsync;

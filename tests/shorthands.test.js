@@ -1,5 +1,6 @@
 "use strict";
 /* global describe, it */
+var assert = require('chai').assert;
 var Rsync = require('../rsync');
 var assertOutput = require('./helpers/output').assertOutput;
 var assertOutputPattern = require('./helpers/output').assertOutputPattern;
@@ -36,6 +37,51 @@ describe('shorthands', function () {
             assertOutput(rsync, 'rsync --rsh="ssh -i /home/user/.ssh/rsync.key" source destination');
       });
   });
+
+//# chmod /////////////////////////////////////////////////////////////////////////////////////////
+    describe('#chmod', function () {
+        var rsync;
+
+        it('should allow a simple value through build', function () {
+            rsync = Rsync.build({
+                'source': 'source',
+                'destination': 'destination',
+                'chmod': 'ug=rwx'
+            });
+            assertOutputPattern(rsync, /chmod=ug=rwx/i);
+        });
+
+        it('should allow multiple values through build', function () {
+            rsync = Rsync.build({
+                'source': 'source',
+                'destination': 'destination',
+                'chmod': [ 'og=uwx', 'rx=ogw' ]
+            });
+            assertOutputPattern(rsync, /chmod=og=uwx --chmod=rx=ogw/);
+        });
+
+        it('should allow multiple values through setter', function () {
+            rsync = Rsync.build({
+                'source': 'source',
+                'destination': 'destination'
+            });
+            rsync.chmod('o=rx');
+            rsync.chmod('ug=rwx');
+            assertOutputPattern(rsync, /--chmod=o=rx --chmod=ug=rwx/);
+        });
+
+        it('should return all the chmod values', function () {
+            var inputValues = [ 'og=uwx', 'rx=ogw' ];
+            rsync = Rsync.build({
+                'source': 'source',
+                'destination': 'destination',
+                'chmod': inputValues
+            });
+
+            var values = rsync.chmod();
+            assert.deepEqual(values, inputValues);
+        });
+    });
 
 //# delete ////////////////////////////////////////////////////////////////////////////////////////
     describe('#delete', function () {
@@ -175,6 +221,23 @@ describe('shorthands', function () {
             command = testSet().dry(false);
             assertOutput(command, output);
         });
+    });
+
+//# perms ////////////////////////////////////////////////////////////////////////////////////////
+    describe('#perms', function () {
+
+      it('should add the perms flag', function () {
+        command.perms();
+        assertOutputPattern(command, /rsync -p/);
+      });
+
+      it('should unset the perms flag', function () {
+        command.perms();
+        assertOutputPattern(command, /rsync -p/);
+        command.perms(false);
+        assertOutput(command, output);
+      });
+
     });
 
 });
