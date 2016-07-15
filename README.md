@@ -151,6 +151,15 @@ var c = rsync.command();
 // c is "rsync -az --rsh="ssh" /p/t/source server:/p/t/dest
 ```
 
+### cwd(path)
+
+Set or get the value for rsync process cwd.
+
+```javascript
+rsync.cwd(__dirname); // Set cwd to __dirname
+rsync.cwd(); // Get cwd value
+```
+
 ### output(stdoutHandler, stderrHandler)
 
 Register output handler functions for the commands stdout and stderr output. The handlers will be
@@ -187,7 +196,7 @@ When `stdoutHandler` and `stderrHandler` functions are provided they will be use
 data from stdout and stderr directly without buffering. Any output handlers that were
 defined previously will be overwritten.
 
-The function returns the child process object, which can be used to kill the 
+The function returns the child process object, which can be used to kill the
 rsync process or clean up if the main program exits early.
 
 ```javascript
