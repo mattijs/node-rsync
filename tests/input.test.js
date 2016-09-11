@@ -96,6 +96,13 @@ describe('input', function () {
             });
             assertOutputPattern(rsync, /\\'to\\ infinity\\ and\\ beyond\\"\/$/);
         });
+        it('should have dollar sign characters escaped', function () {
+            rsync = Rsync.build({
+              source:       [ 'file3.txt' ],
+              destination:  '$some_destination/'
+            });
+            assertOutputPattern(rsync, /\$some_destination\/$/);
+        });
 
     });
 
