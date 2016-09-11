@@ -50,6 +50,14 @@ describe('input', function () {
           assertOutputPattern(rsync, / a_quoted\\'filename\\".txt /);
       });
 
+      it('should have parentheses escaped', function () {
+          rsync = Rsync.build({
+              source:       [ 'a (file) with parantheses.txt' ],
+              destination:  'themoon'
+          });
+          assertOutputPattern(rsync, /a\\ \\\(file\\\)\\ with\\ parantheses.txt/);
+      });
+
       it('should allow mixed filenames', function () {
           rsync = Rsync.build({
               source: [
