@@ -383,6 +383,14 @@ If there is something broken (which there probably is), the same applies: fork, 
 
 # Changelog
 
+v0.5.0
+
+  - Properly treat flags as String
+  - Differentiate between shell and file arguments (escaping)
+  - Added a bunch of unit tests
+  - Added TravisCI setup to run tests on branches and PRs
+  - Added cwd() option to set the process CWD (#36)
+
 v0.4.0
 
   - Child process pid is returned from `execute` (#27)
