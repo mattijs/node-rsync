@@ -404,21 +404,22 @@ Rsync.prototype.args = function() {
 };
 
 /**
- * Get and set rsync process cwd directory.
+ * Get or set rsync process cwd directory.
  *
- * @param  {string} cwd= Directory path relative to current process directory.
- * @return {string} Return current _cwd.
+ * @param  {String} [cwd] Directory path relative to current process directory.
+ * @return {String} Return current _cwd.
  */
 Rsync.prototype.cwd = function(cwd) {
-    if (arguments.length > 0) {
-        if (typeof cwd !== 'string') {
-            throw new Error('Directory should be a string');
-        }
-
-        this._cwd = path.resolve(cwd);
+    if (! arguments.length) {
+        return this._cwd;
     }
 
-    return this._cwd;
+    if (typeof cwd !== 'string') {
+        throw new Error('Directory should be a string or a Buffer');
+    }
+
+    this._cwd = path.resolve(cwd);
+    return this;
 };
 
 /**

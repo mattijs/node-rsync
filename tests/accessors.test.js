@@ -39,7 +39,7 @@ describe('accessors', function () {
 
     describe('#cwd', function () {
 
-      it('should set the the executable shell to use', function () {
+      it('should set the current directory for rsync', function () {
         var rsync = Rsync.build({
           'source':           'a.txt',
           'destination':      'b.txt',
