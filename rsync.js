@@ -584,6 +584,32 @@ createValueAccessor('destination');
 createListAccessor('source', '_sources');
 
 /**
+ * Set owner of the synchronized files and directories.
+ *
+ * This is the same as setting the `owner` option.
+ *
+ * @function
+ * @name owner
+ * @memberOf Rsync.prototype
+ * @param {String} owner Owner name
+ * @return {Rsync}
+ */
+exposeLongOption('owner', '_owner');
+
+/**
+ * Set group of the synchronized files and directories.
+ *
+ * This is the same as setting the `group` option.
+ *
+ * @function
+ * @name group
+ * @memberOf Rsync.prototype
+ * @param {String} group Group name
+ * @return {Rsync}
+ */
+exposeLongOption('group', '_group');
+
+/**
  * Set the shell to use when logging in on a remote server.
  *
  * This is the same as setting the `rsh` option.
@@ -833,7 +859,7 @@ function escapeShellArg(arg) {
  * @return {String} the escaped version of the filename
  */
 function escapeFileArg(filename) {
-  return filename.replace(/(["'`\s\\])/g,'\\$1');
+  return filename.replace(/(["'`\s\\\(\)\\$])/g,'\\$1');
 }
 
 /**

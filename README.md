@@ -26,6 +26,7 @@ var rsync = new Rsync()
   .shell('ssh')
   .flags('az')
   .source('/path/to/source')
+  .set('group', 'www-data')
   .destination('server:/path/to/destination');
 
 // Execute the command

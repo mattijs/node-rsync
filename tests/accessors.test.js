@@ -51,4 +51,34 @@ describe('accessors', function () {
 
     });
 
+    describe('#owner', function () {
+
+      it('should set the owner name for synced files', function () {
+        var rsync = Rsync.build({
+          'source':           'a.txt',
+          'destination':      'b.txt',
+        });
+
+        rsync.set('owner', 'root');
+
+        assert.equal('root', rsync.option('owner'), 'owner was set');
+      });
+
+    });
+
+    describe('#group', function () {
+
+      it('should set the group name for synced files', function () {
+          var rsync = Rsync.build({
+            'source':           'a.txt',
+            'destination':      'b.txt',
+          });
+
+          rsync.set('group', 'sudoers');
+
+          assert.equal('sudoers', rsync.option('group'), 'group was set');
+      });
+
+    });
+
 });
