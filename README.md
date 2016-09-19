@@ -234,8 +234,18 @@ The following option shorthand methods are available:
   - **dirs()**: `-d`
   - **links()**: `-l`
   - **dry()**: `-n`
-  - **chmod(value)**: --chmod=VALUE (accumulative)
-  - **perms()**: -p
+  - **chmod(value)**: `--chmod=VALUE` (accumulative)
+  - **hardLinks()**: `-H`
+  - **perms()**: `-p`
+  - **executability()**: `-E`
+  - **owner()**: `-o`
+  - **group()**: `-g`
+  - **acls()**: `-A`
+  - **xattrs()**: `-X`
+  - **devices()**: `--devices`
+  - **specials**: `--specials`
+  - **times()**: `-t`
+
 
 All shorthand methods are chainable as long as options that require a value are provided with one.
 

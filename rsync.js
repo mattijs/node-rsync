@@ -697,6 +697,16 @@ exposeShortOption('l', 'links');
 exposeShortOption('n', 'dry');
 
 /**
+ * Set the hard links flag preserving hard links for the files transmitted.
+ *
+ * @function
+ * @name hardLinks
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
+exposeShortOption('H', 'hardLinks');
+
+/**
  * Set the perms flag.
  *
  * @function
@@ -706,6 +716,88 @@ exposeShortOption('n', 'dry');
  */
 exposeShortOption('p', 'perms');
 
+/**
+ * Set the executability flag to preserve executability for the files
+ * transmitted.
+ *
+ * @function
+ * @name executability
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
+exposeShortOption('E', 'executability');
+
+/**
+ * Set the group flag to preserve the group permissions of the files
+ * transmitted.
+ *
+ * @function
+ * @name group
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
+exposeShortOption('g', 'group');
+
+/**
+ * Set the owner flag to preserve the owner of the files transmitted.
+ *
+ * @function
+ * @name owner
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
+exposeShortOption('o', 'owner');
+
+/**
+ * Set the acls flag to preserve the ACLs for the files transmitted.
+ *
+ * @function
+ * @name acls
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
+exposeShortOption('A', 'acls');
+
+/**
+ * Set the xattrs flag to preserve the extended attributes for the files
+ * transmitted.
+ *
+ * @function
+ * @name xattrs
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
+exposeShortOption('X', 'xattrs');
+
+/**
+ * Set the devices flag to preserve device files in the transfer.
+ *
+ * @function
+ * @name devices
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
+exposeShortOption('devices');
+
+/**
+ * Set the specials flag to preserve special files.
+ *
+ * @function
+ * @name specials
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
+exposeShortOption('specials');
+
+/**
+ * Set the times flag to preserve times for the files in the transfer.
+ *
+ * @function
+ * @name times
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
+exposeShortOption('t', 'times');
 
 // our awesome export product
 module.exports = Rsync;
@@ -795,7 +887,7 @@ function exposeMultiOption(option, name) {
         }
         else {
             // Add the value
-            let current = this.option(option);
+            var current = this.option(option);
             if (!current) {
                 value = [ value ];
             }
