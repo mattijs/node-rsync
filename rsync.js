@@ -361,7 +361,14 @@ Rsync.prototype.args = function() {
                 short.push(key);
             }
             else {
-                long.push(buildOption(key, value, escapeShellArg));
+                if (isArray(value)) {
+                    value.forEach(function (val) {
+                        long.push(buildOption(key, val, escapeShellArg));
+                    });
+                }
+                else {
+                    long.push(buildOption(key, value, escapeShellArg));
+                }
             }
 
         }
@@ -596,6 +603,17 @@ createListAccessor('source', '_sources');
 exposeLongOption('rsh', 'shell');
 
 /**
+ * Add a chmod instruction to the command.
+ *
+ * @function
+ * @name chmod
+ * @memberOf Rsync.prototype
+ * @param {String|Array}
+ * @return {Rsync|Array}
+ */
+exposeMultiOption('chmod', 'chmod');
+
+/**
  * Set the delete flag.
  *
  * This is the same as setting the `--delete` commandline flag.
@@ -699,6 +717,109 @@ exposeShortOption('l', 'links');
  */
 exposeShortOption('n', 'dry');
 
+/**
+ * Set the hard links flag preserving hard links for the files transmitted.
+ *
+ * @function
+ * @name hardLinks
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
+exposeShortOption('H', 'hardLinks');
+
+/**
+ * Set the perms flag.
+ *
+ * @function
+ * @name perms
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
+exposeShortOption('p', 'perms');
+
+/**
+ * Set the executability flag to preserve executability for the files
+ * transmitted.
+ *
+ * @function
+ * @name executability
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
+exposeShortOption('E', 'executability');
+
+/**
+ * Set the group flag to preserve the group permissions of the files
+ * transmitted.
+ *
+ * @function
+ * @name group
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
+exposeShortOption('g', 'group');
+
+/**
+ * Set the owner flag to preserve the owner of the files transmitted.
+ *
+ * @function
+ * @name owner
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
+exposeShortOption('o', 'owner');
+
+/**
+ * Set the acls flag to preserve the ACLs for the files transmitted.
+ *
+ * @function
+ * @name acls
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
+exposeShortOption('A', 'acls');
+
+/**
+ * Set the xattrs flag to preserve the extended attributes for the files
+ * transmitted.
+ *
+ * @function
+ * @name xattrs
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
+exposeShortOption('X', 'xattrs');
+
+/**
+ * Set the devices flag to preserve device files in the transfer.
+ *
+ * @function
+ * @name devices
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
+exposeShortOption('devices');
+
+/**
+ * Set the specials flag to preserve special files.
+ *
+ * @function
+ * @name specials
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
+exposeShortOption('specials');
+
+/**
+ * Set the times flag to preserve times for the files in the transfer.
+ *
+ * @function
+ * @name times
+ * @memberOf Rsync.prototype
+ * @return {Rsync}
+ */
+exposeShortOption('t', 'times');
+
 // our awesome export product
 module.exports = Rsync;
 
@@ -759,6 +880,49 @@ function exposeShortOption(option, name) {
 
         var method = (set) ? 'set' : 'unset';
         return this[method](option);
+    };
+}
+
+/**
+ * Create a function for an option that can be set multiple time. The option
+ * will accumulate all values.
+ *
+ * @param {String} option
+ * @param {[String]} name
+ */
+function exposeMultiOption(option, name) {
+    name = name || option;
+
+    Rsync.prototype[name] = function(value) {
+        // When not arguments are passed in assume the options
+        // current value is requested
+        if (!arguments.length) return this.option(option);
+
+        if (!value) {
+            // Unset the option on falsy
+            this.unset(option);
+        }
+        else if (isArray(value)) {
+            // Call this method for each array value
+            value.forEach(this[name], this);
+        }
+        else {
+            // Add the value
+            var current = this.option(option);
+            if (!current) {
+                value = [ value ];
+            }
+            else if (!isArray(current)) {
+              value = [ current, value ];
+            }
+            else {
+                value = current.concat(value);
+            }
+
+            this.set(option, value);
+        }
+
+        return this;
     };
 }
 

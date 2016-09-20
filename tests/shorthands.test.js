@@ -1,5 +1,6 @@
 "use strict";
 /* global describe, it */
+var assert = require('chai').assert;
 var Rsync = require('../rsync');
 var assertOutput = require('./helpers/output').assertOutput;
 var assertOutputPattern = require('./helpers/output').assertOutputPattern;
@@ -36,6 +37,51 @@ describe('shorthands', function () {
             assertOutput(rsync, 'rsync --rsh="ssh -i /home/user/.ssh/rsync.key" source destination');
       });
   });
+
+//# chmod /////////////////////////////////////////////////////////////////////////////////////////
+    describe('#chmod', function () {
+        var rsync;
+
+        it('should allow a simple value through build', function () {
+            rsync = Rsync.build({
+                'source': 'source',
+                'destination': 'destination',
+                'chmod': 'ug=rwx'
+            });
+            assertOutputPattern(rsync, /chmod=ug=rwx/i);
+        });
+
+        it('should allow multiple values through build', function () {
+            rsync = Rsync.build({
+                'source': 'source',
+                'destination': 'destination',
+                'chmod': [ 'og=uwx', 'rx=ogw' ]
+            });
+            assertOutputPattern(rsync, /chmod=og=uwx --chmod=rx=ogw/);
+        });
+
+        it('should allow multiple values through setter', function () {
+            rsync = Rsync.build({
+                'source': 'source',
+                'destination': 'destination'
+            });
+            rsync.chmod('o=rx');
+            rsync.chmod('ug=rwx');
+            assertOutputPattern(rsync, /--chmod=o=rx --chmod=ug=rwx/);
+        });
+
+        it('should return all the chmod values', function () {
+            var inputValues = [ 'og=uwx', 'rx=ogw' ];
+            rsync = Rsync.build({
+                'source': 'source',
+                'destination': 'destination',
+                'chmod': inputValues
+            });
+
+            var values = rsync.chmod();
+            assert.deepEqual(values, inputValues);
+        });
+    });
 
 //# delete ////////////////////////////////////////////////////////////////////////////////////////
     describe('#delete', function () {
@@ -175,6 +221,167 @@ describe('shorthands', function () {
             command = testSet().dry(false);
             assertOutput(command, output);
         });
+    });
+
+//# hardLinks/////////////////////////////////////////////////////////////////////////////////////
+    describe('#hardLinks', function () {
+
+        it('should add the hard links flag', function () {
+            command.hardLinks();
+            assertOutputPattern(command, /rsync -H/);
+        });
+
+        it('should unset the hard links flag', function () {
+            command.hardLinks();
+            assertOutputPattern(command, /rsync -H/);
+            command.hardLinks(false);
+            assertOutput(command, output);
+        });
+
+    });
+
+//# perms ////////////////////////////////////////////////////////////////////////////////////////
+    describe('#perms', function () {
+
+      it('should add the perms flag', function () {
+        command.perms();
+        assertOutputPattern(command, /rsync -p/);
+      });
+
+      it('should unset the perms flag', function () {
+        command.perms();
+        assertOutputPattern(command, /rsync -p/);
+        command.perms(false);
+        assertOutput(command, output);
+      });
+
+    });
+
+    describe('#executability', function () {
+
+      it('should add the executability flag', function () {
+        command.executability();
+        assertOutputPattern(command, /rsync -E/);
+      });
+
+      it('should unset the executability flag', function () {
+        command.executability();
+        assertOutputPattern(command, /rsync -E/);
+        command.executability(false);
+        assertOutput(command, output);
+      });
+
+    });
+
+    describe('#owner', function () {
+
+      it('should add the owner flag', function () {
+        command.owner();
+        assertOutputPattern(command, /rsync -o/);
+      });
+
+      it('should unset the owner flag', function () {
+        command.owner();
+        assertOutputPattern(command, /rsync -o/);
+        command.owner(false);
+        assertOutput(command, output);
+      });
+
+    });
+
+    describe('#group', function () {
+
+      it('should add the group flag', function () {
+        command.group();
+        assertOutputPattern(command, /rsync -g/);
+      });
+
+      it('should unset the group flag', function () {
+        command.group();
+        assertOutputPattern(command, /rsync -g/);
+        command.group(false);
+        assertOutput(command, output);
+      });
+    });
+
+    describe('#acls', function () {
+
+      it('should set the acls flag', function () {
+        command.acls();
+        assertOutputPattern(command, /rsync -A/);
+      });
+
+      it('should unset the acls flag', function () {
+        command.acls();
+        assertOutputPattern(command, /rsync -A/);
+        command.acls(false);
+        assertOutput(command, output);
+      });
+
+    });
+
+    describe('#xattrs', function () {
+
+      it('should set the xattrs flag', function () {
+        command.xattrs();
+        assertOutputPattern(command, /rsync -X/);
+      });
+
+      it('should unset the xattrs flag', function () {
+        command.xattrs();
+        assertOutputPattern(command, /rsync -X/);
+        command.xattrs(false);
+        assertOutput(command, output);
+      });
+
+    });
+
+    describe('#devices', function () {
+
+      it('should set the the devices option', function () {
+        command.devices();
+        assertOutputPattern(command, /rsync --devices/);
+      });
+
+      it('should unset the devices option', function () {
+        command.devices();
+        assertOutputPattern(command, /rsync --devices/);
+        command.devices(false);
+        assertOutput(command, output);
+      });
+
+    });
+
+    describe('#specials', function () {
+
+      it('should set the the specials option', function () {
+        command.specials();
+        assertOutputPattern(command, /rsync --specials/);
+      });
+
+      it('should unset the specials option', function () {
+        command.specials();
+        assertOutputPattern(command, /rsync --specials/);
+        command.specials(false);
+        assertOutput(command, output);
+      });
+
+    });
+
+    describe('#times', function () {
+
+      it('should set the the times option', function () {
+        command.times();
+        assertOutputPattern(command, /rsync -t/);
+      });
+
+      it('should unset the times option', function () {
+        command.times();
+        assertOutputPattern(command, /rsync -t/);
+        command.times(false);
+        assertOutput(command, output);
+      });
+
     });
 
 });
