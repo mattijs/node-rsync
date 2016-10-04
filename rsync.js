@@ -404,7 +404,7 @@ Rsync.prototype.args = function() {
 
     // Add destination
     if (this.destination()) {
-        args.push("'" + this.destination() + "'");
+        args.push(escapeFileArg(this.destination()));
     }
 
     return args;
@@ -996,7 +996,13 @@ function escapeShellArg(arg) {
  * @return {String} the escaped version of the filename
  */
 function escapeFileArg(filename) {
-  return "'" + filename.replace(/(["'`\s\\\(\)\\$\\&])/g,'\\$1') + "'";
+  var match = filename.match('@');
+
+  if (match && match.length > 0) {
+    return "'" + filename.replace(/(["'`\s\\\(\)\\$\\&])/g,'\\$1') + "'";
+  }
+
+  return "'" + filename + "'";
 }
 
 /**
