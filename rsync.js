@@ -404,7 +404,7 @@ Rsync.prototype.args = function() {
 
     // Add destination
     if (this.destination()) {
-        args.push(this.destination());
+        args.push("'" + this.destination() + "'");
     }
 
     return args;
