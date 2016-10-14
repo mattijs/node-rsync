@@ -1,6 +1,6 @@
-# Rsync
+# Rsync ![build status](https://travis-ci.org/mattijs/node-rsync.svg?branch=master)
 
-![build status](https://travis-ci.org/mattijs/node-rsync.svg?branch=master)
+[![NPM](https://nodei.co/npm/rsync.png?downloads=true)](https://nodei.co/npm/rsync/)
 
 `Rsync` is a class for building and executing `rsync` commands with Node.js.
 
