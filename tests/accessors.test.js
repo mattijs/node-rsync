@@ -39,7 +39,7 @@ describe('accessors', function () {
 
     describe('#cwd', function () {
 
-      it('should set the the executable shell to use', function () {
+      it('should set the current directory for rsync', function () {
         var rsync = Rsync.build({
           'source':           'a.txt',
           'destination':      'b.txt',
@@ -47,6 +47,36 @@ describe('accessors', function () {
         });
 
         assert.equal(path.resolve(__dirname, '..'), rsync.cwd(), 'cwd was set');
+      });
+
+    });
+
+    describe('#owner', function () {
+
+      it('should set the owner name for synced files', function () {
+        var rsync = Rsync.build({
+          'source':           'a.txt',
+          'destination':      'b.txt',
+        });
+
+        rsync.set('owner', 'root');
+
+        assert.equal('root', rsync.option('owner'), 'owner was set');
+      });
+
+    });
+
+    describe('#group', function () {
+
+      it('should set the group name for synced files', function () {
+          var rsync = Rsync.build({
+            'source':           'a.txt',
+            'destination':      'b.txt',
+          });
+
+          rsync.set('group', 'sudoers');
+
+          assert.equal('sudoers', rsync.option('group'), 'group was set');
       });
 
     });
