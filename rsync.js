@@ -75,6 +75,9 @@ function Rsync(config) {
 
     this._cwd = process.cwd();
 
+    // Allow child_process.spawn env overriding
+    this._env = process.env;
+
     // Debug parameter
     this._debug = hasOP(config, 'debug') ? config.debug : false;
 }
@@ -429,6 +432,24 @@ Rsync.prototype.cwd = function(cwd) {
 };
 
 /**
+ * Get and set rsync process environment variables
+ *
+ * @param  {string} env= Environment variables
+ * @return {string} Return current _env.
+ */
+Rsync.prototype.env = function(env) {
+    if (arguments.length > 0) {
+        if (typeof env !== 'object') {
+            throw new Error('Environment should be an object');
+        }
+
+        this._env = env;
+    }
+
+    return this._env;
+};
+
+/**
  * Register an output handlers for the commands stdout and stderr streams.
  * These functions will be called once data is streamed on one of the output buffers
  * when the command is executed using `execute`.
@@ -479,11 +500,11 @@ Rsync.prototype.execute = function(callback, stdoutHandler, stderrHandler) {
     var cmdProc;
     if ('win32' === process.platform) {
         cmdProc = spawn('cmd.exe', ['/s', '/c', '"' + this.command() + '"'],
-                        { stdio: 'pipe', windowsVerbatimArguments: true, cwd: this._cwd });
+                        { stdio: 'pipe', windowsVerbatimArguments: true, cwd: this._cwd, env: this._env });
     }
     else {
         cmdProc = spawn(this._executableShell, ['-c', this.command()],
-                        { stdio: 'pipe', cwd: this._cwd });
+                        { stdio: 'pipe', cwd: this._cwd, env: this._env });
     }
 
     // Capture stdout and stderr if there are output handlers configured

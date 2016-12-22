@@ -160,6 +160,17 @@ rsync.cwd(__dirname); // Set cwd to __dirname
 rsync.cwd(); // Get cwd value
 ```
 
+### env(envObj)
+
+Set or get the value for rsync process environment variables.
+
+Default: process.env
+
+```javascript
+rsync.env(process.env); // Set env to process.env
+rsync.env(); // Get env values
+```
+
 ### output(stdoutHandler, stderrHandler)
 
 Register output handler functions for the commands stdout and stderr output. The handlers will be
@@ -393,6 +404,10 @@ When adding a shorthand make sure it does not already exist, it is a sane name a
 If there is something broken (which there probably is), the same applies: fork, patch, pull request. Opening an issue is also possible.
 
 # Changelog
+
+v0.6.0
+
+  - Added env() option to set the process environment variables (#51)
 
 v0.5.0
 

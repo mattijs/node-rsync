@@ -39,7 +39,7 @@ describe('accessors', function () {
 
     describe('#cwd', function () {
 
-      it('should set the the executable shell to use', function () {
+      it('should set the the cwd to use', function () {
         var rsync = Rsync.build({
           'source':           'a.txt',
           'destination':      'b.txt',
@@ -47,6 +47,20 @@ describe('accessors', function () {
         });
 
         assert.equal(path.resolve(__dirname, '..'), rsync.cwd(), 'cwd was set');
+      });
+
+    });
+
+    describe('#env', function () {
+
+      it('should set the the env variables to use', function () {
+        var rsync = Rsync.build({
+          'source':           'a.txt',
+          'destination':      'b.txt',
+          'env': {'red': 'blue'}
+        });
+
+        assert.equal('blue', rsync.env().red, 'env was set');
       });
 
     });
