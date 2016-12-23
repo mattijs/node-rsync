@@ -407,6 +407,8 @@ If there is something broken (which there probably is), the same applies: fork, 
 
 v0.6.0
 
+  - Escape dollar signs in filenames (#40)
+  - Add permission shorthands (#46)
   - Added env() option to set the process environment variables (#51)
 
 v0.5.0
