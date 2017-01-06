@@ -1012,12 +1012,30 @@ function escapeShellArg(arg) {
 }
 
 /**
+ * Replace directory separator on Windows
+ * The cygwin rsync and OpenSSH for Windows
+ * (http://www.mls-software.com/opensshd.html)
+ * are using standard linux directory separator
+ * @param {String} path
+ * @return {string}
+ */
+function escapeDirectorySeparator(filename) {
+  if (!/(\\\\)/.test(filename)) {
+    return filename;
+  }
+  if ('win32' === process.platform) {
+    filename = filename.replace(/\\\\/g,'/').replace(/^["]?[A-Z]\:\//ig,'/');
+  }
+  return filename;
+}
+
+/**
  * Escape a filename for use in a shell command.
  * @param {String} filename the filename to escape
  * @return {String} the escaped version of the filename
  */
 function escapeFileArg(filename) {
-  return filename.replace(/(["'`\s\\\(\)\\$])/g,'\\$1');
+  return escapeDirectorySeparator(filename.replace(/(["'`\s\\\(\)\\$])/g,'\\$1'));
 }
 
 /**
