@@ -69,14 +69,22 @@ describe('input', function () {
       });
 
       it('should convert windows path under windows',function () {
-          var platform = process.platform;
-          process.platform = 'win32';
+          beforeAll(function(){
+              this.originalPlatform = process.platform;
+              Object.defineProperty(process, 'platform', {  
+                  value: 'win32'
+              });
+          });
           rsync = Rsync.build({
               source:       [ 'C:\\home\\username\\develop\\readme.txt' ],
               destination:  'themoon'
           });
-          process.platform = platform;
           assertOutputPattern(rsync, / \/home\/username\/develop\/readme\.txt /);
+          afterAll(function(){
+              Object.defineProperty(process, 'platform', {  
+                  value: this.originalPlatform
+              });
+          });
       });
 
     });
@@ -117,14 +125,22 @@ describe('input', function () {
         });
 
         it('should convert widows path for destination', function () {
-            var platform = process.platform;
-            process.platform = 'win32';
+            beforeAll(function(){
+                this.originalPlatform = process.platform;
+                Object.defineProperty(process, 'platform', {  
+                    value: 'win32'
+                });
+            });
             rsync = Rsync.build({
               source:       [ 'reame.txt' ],
               destination:  'C:\\home\\username\\develop\\'
             });
-            process.platform = platform;
             assertOutputPattern(rsync, /\/home\/username\/develop\//);
+            afterAll(function(){
+                Object.defineProperty(process, 'platform', {  
+                    value: this.originalPlatform
+                });
+            });
         });
 
     });
