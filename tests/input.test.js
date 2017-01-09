@@ -67,6 +67,18 @@ describe('input', function () {
           });
           assertOutputPattern(rsync, / example\\ file.txt manual.pdf \\'special_case\\ 1\\'.rtf/);
       });
+
+      it('should convert windows path under windows',function () {
+          var platform = process.platform;
+          process.platform = 'win32';
+          rsync = Rsync.build({
+              source:       [ 'C:\\home\\username\\develop\\readme.txt' ],
+              destination:  'themoon'
+          });
+          process.platform = platform;
+          assertOutputPattern(rsync, / \/home\/username\/develop\/readme\.txt /);
+      });
+
     });
 
     //# destination
@@ -102,6 +114,17 @@ describe('input', function () {
               destination:  '$some_destination/'
             });
             assertOutputPattern(rsync, /\$some_destination\/$/);
+        });
+
+        it('should convert widows path for destination', function () {
+            var platform = process.platform;
+            process.platform = 'win32';
+            rsync = Rsync.build({
+              source:       [ 'reame.txt' ],
+              destination:  'C:\\home\\username\\develop\\'
+            });
+            process.platform = platform;
+            assertOutputPattern(rsync, /\/home\/username\/develop\//);
         });
 
     });
