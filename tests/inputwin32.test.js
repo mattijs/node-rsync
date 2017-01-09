@@ -5,7 +5,7 @@ var assertOutputPattern = require('./helpers/output').assertOutputPattern;
 var Rsync = require('../rsync');
 
 describe('inputwin32', function () {
-    beforeAll(function(){
+    before(function(){
         this.originalPlatform = process.platform;
         Object.defineProperty(process, 'platform', {  
             value: 'win32'
@@ -37,7 +37,7 @@ describe('inputwin32', function () {
         
     });
 
-    afterAll(function(){
+    after(function(){
         Object.defineProperty(process, 'platform', {  
             value: this.originalPlatform
         });
