@@ -68,25 +68,6 @@ describe('input', function () {
           assertOutputPattern(rsync, / example\\ file.txt manual.pdf \\'special_case\\ 1\\'.rtf/);
       });
 
-      it('should convert windows path under windows',function () {
-          beforeAll(function(){
-              this.originalPlatform = process.platform;
-              Object.defineProperty(process, 'platform', {  
-                  value: 'win32'
-              });
-          });
-          rsync = Rsync.build({
-              source:       [ 'C:\\home\\username\\develop\\readme.txt' ],
-              destination:  'themoon'
-          });
-          assertOutputPattern(rsync, / \/home\/username\/develop\/readme\.txt /);
-          afterAll(function(){
-              Object.defineProperty(process, 'platform', {  
-                  value: this.originalPlatform
-              });
-          });
-      });
-
     });
 
     //# destination
@@ -124,25 +105,58 @@ describe('input', function () {
             assertOutputPattern(rsync, /\$some_destination\/$/);
         });
 
-        it('should convert widows path for destination', function () {
-            beforeAll(function(){
-                this.originalPlatform = process.platform;
-                Object.defineProperty(process, 'platform', {  
-                    value: 'win32'
-                });
+
+    });
+
+    //# sources under windows
+    describe('#sourcewin32', function () {
+        beforeAll(function(){
+            this.originalPlatform = process.platform;
+            Object.defineProperty(process, 'platform', {  
+                value: 'win32'
             });
+        });
+        var rsync;
+        
+        it('should convert windows path under windows',function () {
+            rsync = Rsync.build({
+                source:       [ 'C:\\home\\username\\develop\\readme.txt' ],
+                destination:  'themoon'
+            });
+            assertOutputPattern(rsync, / \/home\/username\/develop\/readme\.txt /);
+
+        });
+
+        afterAll(function(){
+            Object.defineProperty(process, 'platform', {  
+                value: this.originalPlatform
+            });
+        });
+    });
+
+    //# destination under win32
+    describe('#destinationwin32', function () {
+        beforeAll(function(){
+            this.originalPlatform = process.platform;
+            Object.defineProperty(process, 'platform', {  
+                value: 'win32'
+            });
+        });
+        var rsync;
+        
+        it('should convert widows path for destination', function () {
             rsync = Rsync.build({
               source:       [ 'reame.txt' ],
               destination:  'C:\\home\\username\\develop\\'
             });
             assertOutputPattern(rsync, /\/home\/username\/develop\//);
-            afterAll(function(){
-                Object.defineProperty(process, 'platform', {  
-                    value: this.originalPlatform
-                });
+        });
+        
+        afterAll(function(){
+            Object.defineProperty(process, 'platform', {  
+                value: this.originalPlatform
             });
         });
-
     });
 
 });
