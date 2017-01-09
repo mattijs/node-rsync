@@ -14,6 +14,8 @@ describe('inputwin32', function () {
 
     //# sources under windows
     describe('#sourcewin32', function () {
+        var rsync;
+        
         it('should convert windows path under windows',function () {
             rsync = Rsync.build({
                 source:       [ 'C:\\home\\username\\develop\\readme.txt' ],
