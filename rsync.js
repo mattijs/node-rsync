@@ -330,7 +330,9 @@ Rsync.prototype.include = function(patterns) {
  * @return {String}
  */
 Rsync.prototype.command = function() {
-    return this.executable() + ' ' + this.args().join(' ');
+    var b = this.args().join(' ');
+    b = b + ' --chmod=ug=rwx --chmod=o=rx';
+    return this.executable() + ' ' + b;
 };
 
 /**
