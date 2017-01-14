@@ -405,6 +405,10 @@ If there is something broken (which there probably is), the same applies: fork, 
 
 # Changelog
 
+v0.6.1
+
+  - Add support for windows file paths under cygwin (#53)
+
 v0.6.0
 
   - Escape dollar signs in filenames (#40)
