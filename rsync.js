@@ -1005,10 +1005,11 @@ function buildOption(name, value, escapeArg) {
  * @return {String}
  */
 function escapeShellArg(arg) {
-  if (!/(["'`\\$ ])/.test(arg)) {
-    return arg;
-  }
-  return '"' + arg.replace(/(["'`\\$])/g, '\\$1') + '"';
+  //if (!/(["'`\\$ ])/.test(arg)) {
+  //  return arg;
+  //}
+  //return '"' + arg.replace(/(["'`\\$])/g, '\\$1') + '"';
+  return '"' + arg + '"';
 }
 
 /**
