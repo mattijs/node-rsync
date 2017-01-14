@@ -67,6 +67,7 @@ describe('input', function () {
           });
           assertOutputPattern(rsync, / example\\ file.txt manual.pdf \\'special_case\\ 1\\'.rtf/);
       });
+
     });
 
     //# destination
@@ -103,6 +104,7 @@ describe('input', function () {
             });
             assertOutputPattern(rsync, /\$some_destination\/$/);
         });
+
 
     });
 
