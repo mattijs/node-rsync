@@ -985,6 +985,11 @@ function buildOption(name, value, escapeArg) {
     // Detect single option key
     var single = (name.length === 1) ? true : false;
 
+    if (name[0] == '~') {
+      single = true;
+      name = name.substring (1);
+    }
+
     // Decide on prefix and value glue
     var prefix = (single) ? '-' : '--';
     var glue   = (single) ? ' ' : '=';
@@ -1022,7 +1027,7 @@ function escapeFileArg(filename) {
     return filename;
   }
   // Under Windows rsync (with cygwin) and OpenSSH for Windows
-  // (http://www.mls-software.com/opensshd.html) are using 
+  // (http://www.mls-software.com/opensshd.html) are using
   // standard linux directory separator so need to replace it
   if ('win32' === process.platform) {
     filename = filename.replace(/\\\\/g,'/').replace(/^["]?[A-Z]\:\//ig,'/');
