@@ -1,11 +1,10 @@
 {
-  "name": "rsync",
+  "name": "@boneskull/rsync",
   "version": "0.6.1",
   "description": "Rsync cli wrapper",
-  "main": "rsync.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mattijs/node-rsync"
+    "url": "https://github.com/boneskull/rsync.git"
   },
   "keywords": [
     "rsync",
@@ -17,11 +16,17 @@
   "license": "MIT",
   "readmeFilename": "README.md",
   "devDependencies": {
-    "chai": "^3.5.0",
-    "mocha": "^2.5.3",
-    "sinon": "^1.17.4"
+    "chai": "^4.1.2",
+    "mocha": "^4.0.1",
+    "semistandard": "^11.0.0",
+    "sinon": "^4.1.2"
   },
   "scripts": {
-    "test": "mocha -R spec tests/*.test.js"
+    "test": "semistandard && mocha"
+  },
+  "dependencies": {
+    "cross-spawn": "^5.1.0",
+    "unixify": "^1.0.0",
+    "which": "^1.3.0"
   }
 }

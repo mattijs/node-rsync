@@ -1,4 +1,15 @@
 language: node_js
+cache:
+  directories:
+    - node_modules
+    - ~/.npm
+notifications:
+  email: false
 node_js:
-  - "node"
-  - "iojs"
+  - '9'
+  - '8'
+  - '6'
+before_script:
+  - npm prune
+dist: trusty
+sudo: false

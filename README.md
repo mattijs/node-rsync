@@ -1,8 +1,14 @@
-# Rsync ![build status](https://travis-ci.org/mattijs/node-rsync.svg?branch=master)
+# Rsync ![build status](https://travis-ci.org/boneskull/cmd.svg?branch=master)
 
-[![NPM](https://nodei.co/npm/rsync.png?downloads=true)](https://nodei.co/npm/rsync/)
+[![NPM](https://nodei.co/npm/@boneskull/cmd.png?downloads=true)](https://nodei.co/npm/@boneskull/rsync/)
 
-`Rsync` is a class for building and executing `rsync` commands with Node.js.
+Library building and executing `rsync` commands with Node.js.
+
+This project is forked from the excellent [rsync](https://npm.im/rsync) module, because I wanted to play with some ideas.
+
+## Requirements
+
+Node.js v6 or newer.
 
 ## Installation
 
@@ -12,26 +18,26 @@ Installation goes through NPM:
 $ npm install rsync
 ```
 
-## License
-
-This module is licensed under the MIT License. See the `LICENSE` file for more details.
-
 ## Simple usage
 
-```javascript
-var Rsync = require('rsync');
+```js
+const rsync = require('rsync');
 
 // Build the command
-var rsync = new Rsync()
-  .shell('ssh')
-  .flags('az')
+const cmd = rsync().shell('ssh')
+  .setFlags('az')
   .source('/path/to/source')
   .destination('server:/path/to/destination');
 
 // Execute the command
-rsync.execute(function(error, code, cmd) {
-    // we're done
-});
+
+cmd.execute()
+  .then(() => {
+    console.log('All done executing', cmd);
+  })
+  .catch(err => {
+    console.error(err);
+  });
 ```
 
 For more examples see the `examples` directory.
@@ -45,10 +51,21 @@ For more examples see the `examples` directory.
 
 ## constructor
 
-Construct a new Rsync command instance. The constructor takes no arguments.
+Construct a new Rsync command instance. The constructor takes a single `options` object, with the following properties:
 
-```javascript
-var rsync = new Rsync();
+- `executable`: path to `rsync` executable (default: `rsync` found in `PATH`)
+- `stdout`: custom stream for `stdout` output (default: `process.stdout`)
+- `stderr`: custom stream for `stderr` output (default: `process.stderr`)
+- `stdin`: custom stream for `stdin` input (default: `process.stdin`)
+
+```js
+const {Rsync} = require('rsync');
+const cmd = new Rsync({
+  executable: '/usr/local/bin/rsync',
+  stdout: process.stdout,
+  stderr: process.stderr,
+  stdin: process.stdin
+});
 ```
 
 ## instance methods
@@ -57,8 +74,8 @@ var rsync = new Rsync();
 
 Set an option. This can be any option from the rsync manual. The value is optional and only applies to options that take a value. This is not checked however. Supplying a value for an option that does not take a value will append the value regardless. This may cause errors when the command is executed.
 
-```javascript
-rsync.set('a')
+```js
+cmd.set('a')
   .set('progress')
   .set('list-only')
   .set('exclude-from', '/path/to/exclude-file');
@@ -72,44 +89,45 @@ The `set` method is chainable.
 
 Unset an option. Any leading dashes (-) are stripped when unsetting an option.
 
-```javascript
-rsync.unset('progress')
+```js
+cmd.unset('progress')
   .unset('quiet');
 ```
 
 The `unset` method is chainable.
 
-### flags(flags, set)
+### setFlags(flags)
 
 Set one or more flags. Flags are single letter options without a value, for example _compress_ (`-z`) or _archive_ (`-a`).
 
-The `flags` method is a polymorphic function: it can take different arguments to set flags.
-Flags can be presented as a single string with multiple flags, multiple strings as arguments, an array containing strings or an object with the flags as keys.
+The following are equivalent:
 
-Whether the presented flags need to be set or unset is determined based on the last argument, if this is a Boolean. When presenting the flags as an Object the value for each key (flag) determines if the flag is set or unset. This version can be used to mix setting and unsetting of flags in one statement.
-
-```javascript
-// As String
-rsync.flags('avz');        // set
-rsync.flags('avz', false); // unset
-
-// As String arguments
-rsync.flags('a', 'v', 'z');        // set
-rsync.flags('a', 'v', 'z', false); // unset
-
-// As Array
-rsync.flags(['a', 'v', 'z']);   // set
-rsync.flags(['a', 'z'], false); // unset
-
-// As Object
-rsync.flags({
-  'a': true, // set
-  'z': true, // set
-  'v': false // unset
-});
+```js
+cmd.setFlags('avz');
+cmd.setFlags('a', 'v', 'z');
+cmd.setFlags(['a', 'v', 'z']);
+cmd.setFlags(['avz']);
+cmd.setFlags(['a', 'v'], ['z']);
 ```
 
-The `flags` method is chainable.
+The `setFlags` method is chainable.
+
+
+### unsetFlags(flags)
+
+Unset one or more flags. Flags are single letter options without a value, for example _compress_ (`-z`) or _archive_ (`-a`).
+
+The following are equivalent:
+
+```js
+cmd.unsetFlags('avz');
+cmd.unsetFlags('a', 'v', 'z');
+cmd.unsetFlags(['a', 'v', 'z']);
+cmd.unsetFlags(['avz']);
+cmd.unsetFlags(['a', 'v'], ['z']);
+```
+
+The `setFlags` method is chainable.
 
 ### isSet(option)
 
@@ -117,19 +135,19 @@ Check if an option is set.
 
 This method does not check alternate versions for an option. When an option is set as the short version this method will still return `false` when checking for the long version, event though they are the same option.
 
-```javascript
-rsync.set('quiet');
-rsync.isSet('quiet'); // is TRUE
-rsync.isSet('q');     // is FALSE
+```js
+cmd.set('quiet');
+cmd.isSet('quiet'); // is TRUE
+cmd.isSet('q');     // is FALSE
 ```
 
 ### option(option)
 
 Get the value for an option by name. If a valueless option is requested null will be returned.
 
-```javascript
-rsync.option('rsh');      // returns String value
-rsync.option('progress'); // returns NULL
+```js
+cmd.option('rsh');      // returns String value
+cmd.option('progress'); // returns NULL
 ```
 
 ### args()
@@ -140,14 +158,14 @@ Get the arguments list for the command that is going to be executed. Returns an 
 
 Get the complete command that is going to be executed.
 
-```javascript
-var rsync = new Rsync()
+```js
+const cmd = rsync()
   .shell('ssh')
   .flags('az')
   .source('/p/t/source')
   .destination('server:/p/t/dest');
 
-var c = rsync.command();
+const c = cmd.command();
 // c is "rsync -az --rsh="ssh" /p/t/source server:/p/t/dest
 ```
 
@@ -155,9 +173,9 @@ var c = rsync.command();
 
 Set or get the value for rsync process cwd.
 
-```javascript
-rsync.cwd(__dirname); // Set cwd to __dirname
-rsync.cwd(); // Get cwd value
+```js
+cmd.cwd(__dirname); // Set cwd to __dirname
+cmd.cwd(); // Get cwd value
 ```
 
 ### env(envObj)
@@ -166,9 +184,9 @@ Set or get the value for rsync process environment variables.
 
 Default: process.env
 
-```javascript
-rsync.env(process.env); // Set env to process.env
-rsync.env(); // Get env values
+```js
+cmd.env(process.env); // Set env to process.env
+cmd.env(); // Get env values
 ```
 
 ### output(stdoutHandler, stderrHandler)
@@ -176,8 +194,8 @@ rsync.env(); // Get env values
 Register output handler functions for the commands stdout and stderr output. The handlers will be
 called with streaming data from the commands output when it is executed.
 
-```javascript
-rsync.output(
+```js
+cmd.output(
     function(data){
         // do things like parse progress
     }, function(data) {
@@ -190,31 +208,29 @@ This method can be called with an array containing one or two functions. These f
 be treated as the stdoutHandler and stderrHandler arguments. This makes it possible to register
 handlers through the `Rsync.build` method by specifying the functions as an array.
 
-```javascript
-var rsync = Rsync.build({
+```js
+const cmd = Rsync.build({
     // ...
     output: [stdoutFunc, stderrFunc] // these are references to functions defined elsewhere
     // ...
 });
 ```
 
-### execute(callback, stdoutHandler, stderrHandler)
+### execute([options], [callback])
 
-Execute the command. The callback function is called with an Error object (or null when there
-was none), the exit code from the executed command and the executed command as a String.
+Execute the command.  `options` accepts two props, `stdoutHandler` and `stderrHandler`.
 
 When `stdoutHandler` and `stderrHandler` functions are provided they will be used to stream
 data from stdout and stderr directly without buffering. Any output handlers that were
 defined previously will be overwritten.
 
-The function returns the child process object, which can be used to kill the
-rsync process or clean up if the main program exits early.
+If called with a Node-style callback function, this function returns the `ChildProcess` object, which can be used to kill the rsync process or clean up if the main program exits early.
 
-```javascript
+```js
 // signal handler function
-var quitting = function() {
-  if (rsyncPid) {
-    rsyncPid.kill();
+const quitting = function() {
+  if (child) {
+    child.kill();
   }
   process.exit();
 }
@@ -223,20 +239,25 @@ process.on("SIGTERM", quitting); // run signal handler on SIGTERM
 process.on("exit", quitting); // run signal handler when main process exits
 
 // simple execute
-var rsyncPid = rsync.execute(function(error, code, cmd) {
-    // we're done
+const child = cmd.execute(function(error, code, cmd) {
+  // we're done
 });
 
 // execute with stream callbacks
-var rsyncPid = rsync.execute(
-    function(error, code, cmd) {
-        // we're done
-    }, function(data){
-        // do things like parse progress
-    }, function(data) {
-        // do things like parse error output
-    }
+const child = cmd.execute(
+  function(error, code, cmd) {
+    // we're done
+  }, function(data){
+    // do things like parse progress
+  }, function(data) {
+    // do things like parse error output
+  }
 );
+
+// no ChildProcess
+cmd.execute().then(() => {
+  // we're done
+})
 ```
 
 ## option shorthands
@@ -277,12 +298,6 @@ These methods can be used to get or set values in a chainable way. When the meth
 
 Get or set the executable to use as the rsync command.
 
-### executableShell(shell)
-
-Get or set the shell to use to launch the rsync command on non-Windows (Unix and Mac OS X) systems.  The default shell is /bin/sh.  
-
-On some systems (Debian, for example) /bin/sh links to /bin/dash, which does not do proper process control.  If you have problems with leftover processes, try a different shell such as /bin/bash.
-
 ### destination(destination)
 
 Get or set the destination for the rsync command.
@@ -291,13 +306,13 @@ Get or set the destination for the rsync command.
 
 Get or set the source or sources for the rsync command. When this method is called multiple times with a value it is appended to the list of sources. It is also possible to present the list of source as an array where each value will be appended to the list of sources
 
-```javascript
+```js
 // chained
-rsync.source('/a/path')
+cmd.source('/a/path')
   .source('/b/path');
 
 // as Array
-rsync.source(['/a/path', '/b/path']);
+cmd.source(['/a/path', '/b/path']);
 ```
 
 In both cases the list of sources will contain two paths.
@@ -319,12 +334,12 @@ The order of patterns is important for some rsync commands. The patterns are sto
 they are added either through the `patterns` method or the `include` and `exclude` methods. The
 `patterns` method can be used with `Rsync.build` to provide an ordered list for the command.
 
-```javascript
+```js
 // on an existing Rsync object
-rsync.patterns([ '-.git', { action: '+', pattern: '/some_dir' });
+cmd.patterns([ '-.git', { action: '+', pattern: '/some_dir' });
 
 // through Rsync.build
-var command = Rsync.build({
+const command = Rsync.build({
     // ...
     patterns: [ '-.git', { action: '+', pattern: '/some_dir' } ]
     // ...
@@ -336,13 +351,13 @@ Exclude a pattern from transfer. When this method is called multiple times with 
 appended to the list of patterns. It is also possible to present the list of excluded
 patterns as an array where each pattern will be appended to the list.
 
-```javascript
+```js
 // chained
-rsync.exclude('.git')
+cmd.exclude('.git')
   .exclude('.DS_Store');
 
 // as Array
-rsync.exclude(['.git', '.DS_Store']);
+cmd.exclude(['.git', '.DS_Store']);
 ```
 
 ### include(pattern)
@@ -351,18 +366,14 @@ Include a pattern for transfer. When this method is called multiple times with a
 appended to the list of patterns. It is also possible to present the list of included patterns as
 an array where each pattern will be appended to the list.
 
-```javascript
+```js
 // chained
-rsync.include('/a/file')
+cmd.include('/a/file')
   .include('/b/file');
 
 // as Array
-rsync.include(['/a/file', '/b/file']);
+cmd.include(['/a/file', '/b/file']);
 ```
-
-### debug(flag)
-
-Get or set the debug flag. This is only used internally and must be a Boolean to set or unset.
 
 ## static methods
 
@@ -375,19 +386,34 @@ For each key in the options object the corresponding method on the Rsync instanc
 called. When a function for the key does not exist it is ignored. An existing Rsync instance
 can optionally be provided.
 
-```javascript
-var rsync = Rsync.build({
+```js
+const {Rsync} = require('rsync');
+const cmd = Rsync.build({
   source:      '/path/to/source',
   destination: 'server:/path/to/destination',
   exclude:     ['.git'],
-  flags:       'avz',
+  setFlags:    'avz',
   shell:       'ssh'
 });
 
-rsync.execute(function(error, stdout, stderr) {
+cmd.execute(function(error, stdout, stderr) {
   // we're done
 });
 ```
+
+# Differences between this and [rsync](https://npm.im/rsync)
+
+- `execute()` returns a `Promise` when not called with a callback
+- `flags()` is deprecated in lieu of `setFlags()` and `unsetFlags()` 
+- Support for custom `STDOUT`, `STDERR` and `STDIN` streams
+- Default export is `rsync()` function which wraps the constructor of the `Rsync` class; the `Rsync` class is now a property thereof:
+  ```js
+  const {Rsync} = require('rsync');
+  const rsync = require('rsync');
+
+  const a = rsync().setFlags('avz');
+  const b = new Rsync().setFlags('avz');
+  ```
 
 # Development
 
@@ -404,6 +430,10 @@ When adding a shorthand make sure it does not already exist, it is a sane name a
 If there is something broken (which there probably is), the same applies: fork, patch, pull request. Opening an issue is also possible.
 
 # Changelog
+
+v1.0.0
+
+  - Forked to `@boneskull/rsync`
 
 v0.6.1
 
@@ -453,3 +483,7 @@ v0.0.2
 v0.0.1
 
   - initial version (actually the second)
+
+## License
+
+This module is licensed under the MIT License. See the `LICENSE` file for more details.
