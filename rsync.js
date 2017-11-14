@@ -330,7 +330,21 @@ Rsync.prototype.include = function(patterns) {
  * @return {String}
  */
 Rsync.prototype.command = function() {
-    return this.executable() + ' ' + this.args().join(' ');
+    return this.currCommand || this.executable() + ' ' + this.args().join(' ');
+};
+
+/**
+ * Set the command that is going to be executed in case of advanced user
+ */
+Rsync.prototype.setCommand = function(str) {
+    this.currCommand = str;
+};
+
+/**
+ * Reset the command that is going to be executed in case of advanced user
+ */
+Rsync.prototype.resetCommand = function() {
+    this.currCommand = null;
 };
 
 /**
