@@ -78,6 +78,17 @@ function Rsync(config) {
     // Allow child_process.spawn env overriding
     this._env = process.env;
 
+    // Only escape params on windows. Windows version is not safe from shell injection attacks.
+    // Spawn escape arguments for unix versions.
+    if (this._env === 'win32') {
+        this._escapeShellArg = escapeShellArg;
+        this._escapeFileArg = escapeFileArg;
+    }
+    else {
+        this._escapeShellArg = (arg) => arg;
+        this._escapeFileArg = (arg) => arg;
+    }
+
     // Debug parameter
     this._debug = hasOP(config, 'debug') ? config.debug : false;
 }
@@ -366,11 +377,11 @@ Rsync.prototype.args = function() {
             else {
                 if (isArray(value)) {
                     value.forEach(function (val) {
-                        long.push(buildOption(key, val, escapeShellArg));
+                        long.push(buildOption(key, val, this._escapeShellArg));
                     });
                 }
                 else {
-                    long.push(buildOption(key, value, escapeShellArg));
+                    long.push(buildOption(key, value, this._escapeShellArg));
                 }
             }
 
@@ -390,10 +401,10 @@ Rsync.prototype.args = function() {
     // Add includes/excludes in order
     this._patterns.forEach(function(def) {
         if (def.action === '-') {
-            args.push(buildOption('exclude', def.pattern, escapeFileArg));
+            args.push(buildOption('exclude', def.pattern, this._escapeFileArg));
         }
         else if (def.action === '+') {
-            args.push(buildOption('include', def.pattern, escapeFileArg));
+            args.push(buildOption('include', def.pattern, this._escapeFileArg));
         }
         else {
             debug(this, 'Unknown pattern action ' + def.action);
@@ -402,12 +413,12 @@ Rsync.prototype.args = function() {
 
     // Add sources
     if (this.source().length > 0) {
-        args = args.concat(this.source().map(escapeFileArg));
+        args = args.concat(this.source().map(this._escapeFileArg));
     }
 
     // Add destination
     if (this.destination()) {
-        args.push(escapeFileArg(this.destination()));
+        args.push(this._escapeFileArg(this.destination()));
     }
 
     return args;
@@ -503,8 +514,12 @@ Rsync.prototype.execute = function(callback, stdoutHandler, stderrHandler) {
                         { stdio: 'pipe', windowsVerbatimArguments: true, cwd: this._cwd, env: this._env });
     }
     else {
-        cmdProc = spawn(this._executableShell, ['-c', this.command()],
-                        { stdio: 'pipe', cwd: this._cwd, env: this._env });
+        console.log({ args: this.args() })
+        cmdProc = spawn('rsync', this.args(), {
+            stdio: 'pipe',
+            cwd: this._cwd,
+            env: this._env
+        });
     }
 
     // Capture stdout and stderr if there are output handlers configured
@@ -1022,7 +1037,7 @@ function escapeFileArg(filename) {
     return filename;
   }
   // Under Windows rsync (with cygwin) and OpenSSH for Windows
-  // (http://www.mls-software.com/opensshd.html) are using 
+  // (http://www.mls-software.com/opensshd.html) are using
   // standard linux directory separator so need to replace it
   if ('win32' === process.platform) {
     filename = filename.replace(/\\\\/g,'/').replace(/^["]?[A-Z]\:\//ig,'/');
@@ -1083,3 +1098,4 @@ function noop() {}
 function debug(cmd, message) {
     if (!cmd._debug) return;
 }
+
