@@ -499,11 +499,11 @@ Rsync.prototype.execute = function(callback, stdoutHandler, stderrHandler) {
     // see https://github.com/joyent/node/blob/937e2e351b2450cf1e9c4d8b3e1a4e2a2def58bb/lib/child_process.js#L589
     var cmdProc;
     if ('win32' === process.platform) {
-        cmdProc = spawn('cmd.exe', ['/s', '/c', '"' + this.command() + '"'],
+        cmdProc = spawn(this.executable(), this.args(),
                         { stdio: 'pipe', windowsVerbatimArguments: true, cwd: this._cwd, env: this._env });
     }
     else {
-        cmdProc = spawn(this._executableShell, ['-c', this.command()],
+        cmdProc = spawn(this.executable(), this.args(),
                         { stdio: 'pipe', cwd: this._cwd, env: this._env });
     }
 
