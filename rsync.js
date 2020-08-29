@@ -1017,7 +1017,7 @@ function escapeShellArg(arg) {
  * @return {String} the escaped version of the filename
  */
 function escapeFileArg(filename) {
-  filename = filename.replace(/(["'`\s\\\(\)\\$])/g,'\\$1');
+  filename = filename.replace(/(["'`\s\\\(\)\\$\&])/g,'\\$1');
   if (!/(\\\\)/.test(filename)) {
     return filename;
   }
