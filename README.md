@@ -1,10 +1,8 @@
-# Rsync ![build status](https://travis-ci.org/boneskull/cmd.svg?branch=master)
+# Rsync ![build status](https://travis-ci.org/mattijs/node-rsync.svg?branch=master)
 
-[![NPM](https://nodei.co/npm/@boneskull/cmd.png?downloads=true)](https://nodei.co/npm/@boneskull/rsync/)
+[![NPM](https://nodei.co/npm/rsync.png?downloads=true)](https://nodei.co/npm/rsync/)
 
-Library building and executing `rsync` commands with Node.js.
-
-This project is forked from the excellent [rsync](https://npm.im/rsync) module, because I wanted to play with some ideas.
+`Rsync` is a class for building and executing `rsync` commands with Node.js.
 
 ## Requirements
 
@@ -20,7 +18,7 @@ npm install rsync
 
 ## Simple usage
 
-```js
+```javascript
 const rsync = require('rsync');
 
 // Build the command
@@ -58,7 +56,7 @@ Construct a new Rsync command instance. The constructor takes a single `options`
 * `stderr`: custom stream for `stderr` output (default: `process.stderr`)
 * `stdin`: custom stream for `stdin` input (default: `process.stdin`)
 
-```js
+```javascript
 const {Rsync} = require('rsync');
 const cmd = new Rsync({
   executable: '/usr/local/bin/rsync',
@@ -74,7 +72,7 @@ const cmd = new Rsync({
 
 Set an option. This can be any option from the rsync manual. The value is optional and only applies to options that take a value. This is not checked however. Supplying a value for an option that does not take a value will append the value regardless. This may cause errors when the command is executed.
 
-```js
+```javascript
 cmd.set('a')
   .set('progress')
   .set('list-only')
@@ -89,7 +87,7 @@ The `set` method is chainable.
 
 Unset an option. Any leading dashes (-) are stripped when unsetting an option.
 
-```js
+```javascript
 cmd.unset('progress')
   .unset('quiet');
 ```
@@ -102,7 +100,7 @@ Set one or more flags. Flags are single letter options without a value, for exam
 
 The following are equivalent:
 
-```js
+```javascript
 cmd.setFlags('avz');
 cmd.setFlags('a', 'v', 'z');
 cmd.setFlags(['a', 'v', 'z']);
@@ -118,7 +116,7 @@ Unset one or more flags. Flags are single letter options without a value, for ex
 
 The following are equivalent:
 
-```js
+```javascript
 cmd.unsetFlags('avz');
 cmd.unsetFlags('a', 'v', 'z');
 cmd.unsetFlags(['a', 'v', 'z']);
@@ -134,7 +132,7 @@ Check if an option is set.
 
 This method does not check alternate versions for an option. When an option is set as the short version this method will still return `false` when checking for the long version, event though they are the same option.
 
-```js
+```javascript
 cmd.set('quiet');
 cmd.isSet('quiet'); // is TRUE
 cmd.isSet('q');     // is FALSE
@@ -144,7 +142,7 @@ cmd.isSet('q');     // is FALSE
 
 Get the value for an option by name. If a valueless option is requested null will be returned.
 
-```js
+```javascript
 cmd.option('rsh');      // returns String value
 cmd.option('progress'); // returns NULL
 ```
@@ -157,7 +155,7 @@ Get the arguments list for the command that is going to be executed. Returns an 
 
 Get the complete command that is going to be executed.
 
-```js
+```javascript
 const cmd = rsync()
   .shell('ssh')
   .flags('az')
@@ -172,7 +170,7 @@ const c = cmd.command();
 
 Set or get the value for rsync process cwd.
 
-```js
+```javascript
 cmd.cwd(__dirname); // Set cwd to __dirname
 cmd.cwd(); // Get cwd value
 ```
@@ -183,7 +181,7 @@ Set or get the value for rsync process environment variables.
 
 Default: process.env
 
-```js
+```javascript
 cmd.env(process.env); // Set env to process.env
 cmd.env(); // Get env values
 ```
@@ -193,7 +191,7 @@ cmd.env(); // Get env values
 Register output handler functions for the commands stdout and stderr output. The handlers will be
 called with streaming data from the commands output when it is executed.
 
-```js
+```javascript
 cmd.output(
     function(data){
         // do things like parse progress
@@ -207,7 +205,7 @@ This method can be called with an array containing one or two functions. These f
 be treated as the stdoutHandler and stderrHandler arguments. This makes it possible to register
 handlers through the `Rsync.build` method by specifying the functions as an array.
 
-```js
+```javascript
 const cmd = Rsync.build({
     // ...
     output: [stdoutFunc, stderrFunc] // these are references to functions defined elsewhere
@@ -215,7 +213,7 @@ const cmd = Rsync.build({
 });
 ```
 
-### execute([options], [callback])
+### execute([options])
 
 Execute the command.  `options` accepts two props, `stdoutHandler` and `stderrHandler`.
 
@@ -223,40 +221,23 @@ When `stdoutHandler` and `stderrHandler` functions are provided they will be use
 data from stdout and stderr directly without buffering. Any output handlers that were
 defined previously will be overwritten.
 
-If called with a Node-style callback function, this function returns the `ChildProcess` object, which can be used to kill the rsync process or clean up if the main program exits early.
-
-```js
-// signal handler function
-const quitting = function() {
-  if (child) {
-    child.kill();
-  }
-  process.exit();
-}
-process.on("SIGINT", quitting); // run signal handler on CTRL-C
-process.on("SIGTERM", quitting); // run signal handler on SIGTERM
-process.on("exit", quitting); // run signal handler when main process exits
-
-// simple execute
-const child = cmd.execute(function(error, code, cmd) {
-  // we're done
-});
+```javascript
+cmd.execute().then((exitCode) => {
+  // Do something once the rsync is complete
+}).catch((error) => {
+  // Handle errors with spawning of the process
+}); 
 
 // execute with stream callbacks
-const child = cmd.execute(
-  function(error, code, cmd) {
-    // we're done
-  }, function(data){
+cmd.execute({
+  stdoutHandler: (stdoutHandle) => {
     // do things like parse progress
-  }, function(data) {
+  }, 
+  stderrHandler: (stderrHandle) => {
     // do things like parse error output
   }
-);
+});
 
-// no ChildProcess
-cmd.execute().then(() => {
-  // we're done
-})
 ```
 
 ## option shorthands
@@ -304,7 +285,7 @@ Get or set the destination for the rsync command.
 
 Get or set the source or sources for the rsync command. When this method is called multiple times with a value it is appended to the list of sources. It is also possible to present the list of source as an array where each value will be appended to the list of sources
 
-```js
+```javascript
 // chained
 cmd.source('/a/path')
   .source('/b/path');
@@ -332,7 +313,7 @@ The order of patterns is important for some rsync commands. The patterns are sto
 they are added either through the `patterns` method or the `include` and `exclude` methods. The
 `patterns` method can be used with `Rsync.build` to provide an ordered list for the command.
 
-```js
+```javascript
 // on an existing Rsync object
 cmd.patterns([ '-.git', { action: '+', pattern: '/some_dir' });
 
@@ -350,7 +331,7 @@ Exclude a pattern from transfer. When this method is called multiple times with 
 appended to the list of patterns. It is also possible to present the list of excluded
 patterns as an array where each pattern will be appended to the list.
 
-```js
+```javascript
 // chained
 cmd.exclude('.git')
   .exclude('.DS_Store');
@@ -365,7 +346,7 @@ Include a pattern for transfer. When this method is called multiple times with a
 appended to the list of patterns. It is also possible to present the list of included patterns as
 an array where each pattern will be appended to the list.
 
-```js
+```javascript
 // chained
 cmd.include('/a/file')
   .include('/b/file');
@@ -385,7 +366,7 @@ For each key in the options object the corresponding method on the Rsync instanc
 called. When a function for the key does not exist it is ignored. An existing Rsync instance
 can optionally be provided.
 
-```js
+```javascript
 const {Rsync} = require('rsync');
 const cmd = Rsync.build({
   source:      '/path/to/source',
@@ -409,7 +390,7 @@ cmd.execute(function(error, stdout, stderr) {
 * Support for custom `STDOUT`, `STDERR` and `STDIN` streams
 * Default export is `rsync()` function which wraps the constructor of the `Rsync` class; the `Rsync` class is now a property thereof:
 
-  ```js
+  ```javascript
   const {Rsync} = require('rsync');
   const rsync = require('rsync');
 

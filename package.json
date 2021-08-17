@@ -1,10 +1,10 @@
 {
-  "name": "@jhundley9109/rsync",
+  "name": "rsync",
   "version": "2.0.0",
   "description": "Rsync cli wrapper",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jhundley9109/rsync.git"
+    "url": "https://github.com/mattijs/node-rsync"
   },
   "keywords": [
     "rsync",
