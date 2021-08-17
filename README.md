@@ -14,8 +14,8 @@ Node.js v6 or newer.
 
 Installation goes through NPM:
 
-```
-$ npm install rsync
+```bash
+npm install rsync
 ```
 
 ## Simple usage
@@ -44,19 +44,19 @@ For more examples see the `examples` directory.
 
 # API
 
-  * [constructor](#constructor)
-  * [instance methods](#instance-methods)
-  * [accessor methods](#accessor-methods)
-  * [static methods](#static-methods)
+* [constructor](#constructor)
+* [instance methods](#instance-methods)
+* [accessor methods](#accessor-methods)
+* [static methods](#static-methods)
 
 ## constructor
 
 Construct a new Rsync command instance. The constructor takes a single `options` object, with the following properties:
 
-- `executable`: path to `rsync` executable (default: `rsync` found in `PATH`)
-- `stdout`: custom stream for `stdout` output (default: `process.stdout`)
-- `stderr`: custom stream for `stderr` output (default: `process.stderr`)
-- `stdin`: custom stream for `stdin` input (default: `process.stdin`)
+* `executable`: path to `rsync` executable (default: `rsync` found in `PATH`)
+* `stdout`: custom stream for `stdout` output (default: `process.stdout`)
+* `stderr`: custom stream for `stderr` output (default: `process.stderr`)
+* `stdin`: custom stream for `stdin` input (default: `process.stdin`)
 
 ```js
 const {Rsync} = require('rsync');
@@ -111,7 +111,6 @@ cmd.setFlags(['a', 'v'], ['z']);
 ```
 
 The `setFlags` method is chainable.
-
 
 ### unsetFlags(flags)
 
@@ -264,29 +263,28 @@ cmd.execute().then(() => {
 
 The following option shorthand methods are available:
 
-  - **shell(value)**: `--rsh=SHELL`
-  - **delete()**: `--delete`
-  - **progress()**: `--progress`
-  - **archive()**: `-a`
-  - **compress()**: `-z`
-  - **recursive()**: `-r`
-  - **update()**: `-u`
-  - **quiet()**: `-q`
-  - **dirs()**: `-d`
-  - **links()**: `-l`
-  - **dry()**: `-n`
-  - **chmod(value)**: `--chmod=VALUE` (accumulative)
-  - **hardLinks()**: `-H`
-  - **perms()**: `-p`
-  - **executability()**: `-E`
-  - **owner()**: `-o`
-  - **group()**: `-g`
-  - **acls()**: `-A`
-  - **xattrs()**: `-X`
-  - **devices()**: `--devices`
-  - **specials**: `--specials`
-  - **times()**: `-t`
-
+* **shell(value)**: `--rsh=SHELL`
+* **delete()**: `--delete`
+* **progress()**: `--progress`
+* **archive()**: `-a`
+* **compress()**: `-z`
+* **recursive()**: `-r`
+* **update()**: `-u`
+* **quiet()**: `-q`
+* **dirs()**: `-d`
+* **links()**: `-l`
+* **dry()**: `-n`
+* **chmod(value)**: `--chmod=VALUE` (accumulative)
+* **hardLinks()**: `-H`
+* **perms()**: `-p`
+* **executability()**: `-E`
+* **owner()**: `-o`
+* **group()**: `-g`
+* **acls()**: `-A`
+* **xattrs()**: `-X`
+* **devices()**: `--devices`
+* **specials**: `--specials`
+* **times()**: `-t`
 
 All shorthand methods are chainable as long as options that require a value are provided with one.
 
@@ -345,6 +343,7 @@ const command = Rsync.build({
     // ...
 });
 ```
+
 ### exclude(pattern)
 
 Exclude a pattern from transfer. When this method is called multiple times with a value it is
@@ -401,12 +400,15 @@ cmd.execute(function(error, stdout, stderr) {
 });
 ```
 
-# Differences between this and [rsync](https://npm.im/rsync)
+## Differences between this and [rsync](https://npm.im/rsync)
 
-- `execute()` returns a `Promise` when not called with a callback
-- `flags()` is deprecated in lieu of `setFlags()` and `unsetFlags()` 
-- Support for custom `STDOUT`, `STDERR` and `STDIN` streams
-- Default export is `rsync()` function which wraps the constructor of the `Rsync` class; the `Rsync` class is now a property thereof:
+* `execute()` returns a `Promise`
+* Better handling of windows/unix cross platform compatibility
+* Better escape of shell escape sequqences to prevent exploits
+* `flags()` is deprecated in lieu of `setFlags()` and `unsetFlags()`
+* Support for custom `STDOUT`, `STDERR` and `STDIN` streams
+* Default export is `rsync()` function which wraps the constructor of the `Rsync` class; the `Rsync` class is now a property thereof:
+
   ```js
   const {Rsync} = require('rsync');
   const rsync = require('rsync');
@@ -415,77 +417,79 @@ cmd.execute(function(error, stdout, stderr) {
   const b = new Rsync().setFlags('avz');
   ```
 
-# Development
+## Development
 
 If there is something missing (which there probably is) just fork, patch and send a pull request.
 
 For adding a new shorthand method there are a few simple steps to take:
-- Fork
-- Add the option through the `exposeShortOption`, `exposeLongOption` or `exposeMultiOption` functions. For examples see the source file.
-- Update this README file to list the new shorthand method
-- Make a pull request
+
+* Fork
+* Add the option through the `exposeShortOption`, `exposeLongOption` or `exposeMultiOption` functions. For examples see the source file.
+* Update this README file to list the new shorthand method
+* Make a pull request
 
 When adding a shorthand make sure it does not already exist, it is a sane name and a shorthand is necessary.
 
 If there is something broken (which there probably is), the same applies: fork, patch, pull request. Opening an issue is also possible.
 
-# Changelog
+## Changelog
 
 v2.0.0
-  - Forked to `@jhundley9109/rsync`
+
+* Forked to `@jhundley9109/rsync`
 
 v1.0.0
 
-  - Forked to `@boneskull/rsync`
+* Forked to `@boneskull/rsync`
 
 v0.6.1
 
-  - Add support for windows file paths under cygwin (#53)
+* Add support for windows file paths under cygwin (#53)
 
 v0.6.0
 
-  - Escape dollar signs in filenames (#40)
-  - Add permission shorthands (#46)
-  - Added env() option to set the process environment variables (#51)
+* Escape dollar signs in filenames (#40)
+* Add permission shorthands (#46)
+* Added env() option to set the process environment variables (#51)
 
 v0.5.0
 
-  - Properly treat flags as String
-  - Differentiate between shell and file arguments (escaping)
-  - Added a bunch of unit tests
-  - Added TravisCI setup to run tests on branches and PRs
-  - Added cwd() option to set the process CWD (#36)
+* Properly treat flags as String
+* Differentiate between shell and file arguments (escaping)
+* Added a bunch of unit tests
+* Added TravisCI setup to run tests on branches and PRs
+* Added cwd() option to set the process CWD (#36)
 
 v0.4.0
 
-  - Child process pid is returned from `execute` (#27)
-  - Command execution shell is configurable for Unix systems (#27)
-  - Better escaping for filenames with spaces (#24)
+* Child process pid is returned from `execute` (#27)
+* Command execution shell is configurable for Unix systems (#27)
+* Better escaping for filenames with spaces (#24)
 
 v0.3.0
 
-  - Launch the command under a shell (#15)
-  - Typo fix isaArray -> isArray for issue (#14)
-  - Error: rsync exited with code 14 (#11)
+* Launch the command under a shell (#15)
+* Typo fix isaArray -> isArray for issue (#14)
+* Error: rsync exited with code 14 (#11)
 
 v0.2.0
 
-  - use spawn instead of exec (#6)
+* use spawn instead of exec (#6)
 
 v0.1.0
 
-  - better support for include/exclude filters
-  - better support for output handlers
-  - removed output buffering (#6)
+* better support for include/exclude filters
+* better support for output handlers
+* removed output buffering (#6)
 
 v0.0.2
 
-  - swapped exclude and include order
-  - better shell escaping
+* swapped exclude and include order
+* better shell escaping
 
 v0.0.1
 
-  - initial version (actually the second)
+* initial version (actually the second)
 
 ## License
 
