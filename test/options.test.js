@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 'use strict';
 const assert = require('chai').assert;
-const {Rsync} = require('../index');
+const { Rsync } = require('../index');
 
 describe('options', function () {
   let command;

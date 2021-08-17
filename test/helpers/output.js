@@ -1,8 +1,6 @@
 'use strict';
 
 const assert = require('chai').assert;
-
-const rsyncPath = require('which').sync('rsync');
 const output = module.exports;
 
 /**
@@ -14,7 +12,7 @@ const output = module.exports;
  */
 output.assertOutput = (command, expectation, message) => {
   command = isFunction(command) ? command() : command;
-  expectation = isFunction(expectation) ? expectation() : `${rsyncPath} ${expectation}`;
+  expectation = isFunction(expectation) ? expectation() : `${command.executable()} ${expectation}`;
   message =
     message || `expected |${command.command()}| to equal |${expectation}|`;
 

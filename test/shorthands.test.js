@@ -1,16 +1,16 @@
 /* eslint-env mocha */
 'use strict';
 const assert = require('chai').assert;
-const {Rsync} = require('../index');
-const {assertOutputPattern} = require('./helpers/output');
+const { Rsync } = require('../index');
+const { assertOutputPattern } = require('./helpers/output');
 
 describe('shorthands', function () {
   let command, output;
 
   beforeEach(() => {
     command = Rsync.build({
-      'source': 'SOURCE',
-      'destination': 'DESTINATION'
+      source: 'SOURCE',
+      destination: 'DESTINATION'
     });
     output = /rsync SOURCE DESTINATION/;
   });
@@ -21,18 +21,18 @@ describe('shorthands', function () {
     let rsync;
     it('should add rsh option', function () {
       rsync = Rsync.build({
-        'source': 'source',
-        'destination': 'destination',
-        'shell': 'ssh'
+        source: 'source',
+        destination: 'destination',
+        shell: 'ssh'
       });
       assertOutputPattern(rsync, /rsync --rsh=ssh source destination/);
     });
 
     it('should escape options with spaces', function () {
       rsync = Rsync.build({
-        'source': 'source',
-        'destination': 'destination',
-        'shell': 'ssh -i /home/user/.ssh/rsync.key'
+        source: 'source',
+        destination: 'destination',
+        shell: 'ssh -i /home/user/.ssh/rsync.key'
       });
       assertOutputPattern(rsync,
         /rsync --rsh="ssh -i \/home\/user\/\.ssh\/rsync\.key" source destination/);
@@ -46,26 +46,26 @@ describe('shorthands', function () {
 
     it('should allow a simple value through build', function () {
       rsync = Rsync.build({
-        'source': 'source',
-        'destination': 'destination',
-        'chmod': 'ug=rwx'
+        source: 'source',
+        destination: 'destination',
+        chmod: 'ug=rwx'
       });
       assertOutputPattern(rsync, /chmod=ug=rwx/i);
     });
 
     it('should allow multiple values through build', function () {
       rsync = Rsync.build({
-        'source': 'source',
-        'destination': 'destination',
-        'chmod': ['og=uwx', 'rx=ogw']
+        source: 'source',
+        destination: 'destination',
+        chmod: ['og=uwx', 'rx=ogw']
       });
       assertOutputPattern(rsync, /chmod=og=uwx --chmod=rx=ogw/);
     });
 
     it('should allow multiple values through setter', function () {
       rsync = Rsync.build({
-        'source': 'source',
-        'destination': 'destination'
+        source: 'source',
+        destination: 'destination'
       });
       rsync.chmod('o=rx');
       rsync.chmod('ug=rwx');
@@ -75,9 +75,9 @@ describe('shorthands', function () {
     it('should return all the chmod values', function () {
       const inputValues = ['og=uwx', 'rx=ogw'];
       rsync = Rsync.build({
-        'source': 'source',
-        'destination': 'destination',
-        'chmod': inputValues
+        source: 'source',
+        destination: 'destination',
+        chmod: inputValues
       });
 
       const values = rsync.chmod();

@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 'use strict';
-const {Rsync} = require('../index');
-const {assertOutput} = require('./helpers/output');
+const { Rsync } = require('../index');
+const { assertOutput } = require('./helpers/output');
 
 /**
  * Some general and weird test cases for command output.

@@ -46,7 +46,7 @@ const unixify = require('unixify');
  * @param {Object} config Configuration settings for the Rsync wrapper.
  */
 class Rsync {
-  constructor ({executable = which('rsync'), stderr = process.stderr, stdout = process.stdout, stdin = process.stdin} = {}) {
+  constructor ({ executable = which('rsync'), stderr = process.stderr, stdout = process.stdout, stdin = process.stdin } = {}) {
     // executable
     this._executable = executable;
 
@@ -290,14 +290,16 @@ class Rsync {
 
     // Split long and short options
     Object.keys(this._options).forEach(key => {
-      let value = this._options[key];
+      const value = this._options[key];
       if (key.length === 1 && typeof value === 'undefined') {
         short = short.concat(key);
       } else {
         long =
-          Array.isArray(value) ? long.concat(value.map(
-            val => buildOption(key, val, escapeShellArg))) : long.concat(
-            buildOption(key, value, escapeShellArg));
+          Array.isArray(value)
+            ? long.concat(value.map(
+              val => buildOption(key, val, escapeShellArg)))
+            : long.concat(
+              buildOption(key, value, escapeShellArg));
       }
     });
 
@@ -313,8 +315,10 @@ class Rsync {
 
     // Add includes/excludes in order
     args =
-      args.concat(this._patterns.map(({action, pattern}) => buildOption(action ===
-      '-' ? 'exclude' : 'include', pattern)));
+      args.concat(this._patterns.map(({ action, pattern }) => buildOption(action ===
+      '-'
+        ? 'exclude'
+        : 'include', pattern)));
 
     // Add sources
     if (this.source().length) {
@@ -402,42 +406,38 @@ class Rsync {
    *   `ChildProcess` object, otherwise return a `Promise`.
    * @returns {Promise<void>|ChildProcess}
    */
-  execute (opts = {}, callback) {
-    if (typeof opts === 'function') {
-      callback = opts;
-      opts = {};
-    }
-    // Register output handlers
-    this.output(opts.stdoutHandler ||
-      this._outputHandlers.stdout, opts.stderrHandler ||
-      this._outputHandlers.stderr);
+  execute (opts = {}) {
 
-    let cmdProc;
+    // Register output handlers
+    this.output(
+      opts.stdoutHandler || this._outputHandlers.stdout,
+      opts.stderrHandler || this._outputHandlers.stderr
+    );
+
     const promise = new Promise((resolve, reject) => {
-      cmdProc = spawn(this._executable, this.args(), {
-        stdio: [this._stdin, this._stdout, this._stderr],
+      // use shell: true because spawn screws up quotes without it
+      const cmdProc = spawn(this.executable(), this.args(), {
         cwd: this._cwd,
-        env: this._env
-      }).on('error', reject).on('close', code => {
-        if (code) {
-          return reject(new Error(`rsync exited with code ${code}`));
-        }
-        resolve();
+        env: this._env,
+        shell: true
       });
 
       cmdProc.stdout.on('data', this._outputHandlers.stdout);
       cmdProc.stderr.on('data', this._outputHandlers.stderr);
+
+      cmdProc.on('error', reject);
+      cmdProc.on('close', code => {
+        if (code) {
+          return reject(new Error(`rsync exited with code ${code}`));
+        }
+
+        resolve(code);
+      });
     }).catch(err => {
-      if (callback) {
-        return callback(err);
-      }
       return Promise.reject(err);
-    }).then(_ => {
-      if (callback) {
-        callback();
-      }
     });
-    return callback ? cmdProc : promise;
+
+    return promise;
   }
 
   /**
@@ -618,10 +618,14 @@ const buildOption = (name, value, escapeArg) => {
 
   // Build the option
   let option = prefix + name;
-  if (arguments.length > 1 && value) {
+  if (name && value) {
     value = escapeArg(String(value));
     option += glue + value;
   }
+  // if (arguments.length > 1 && value) {
+  //   value = escapeArg(String(value));
+  //   option += glue + value;
+  // }
 
   return option;
 };
@@ -635,6 +639,7 @@ const escapeShellArg = arg => {
   if (!/(["'`\\$ ])/.test(arg)) {
     return arg;
   }
+
   return `"${arg.replace(/(["'`\\$])/g, '\\$1')}"`;
 };
 
@@ -656,7 +661,9 @@ const noop = _ => {
 
 const parseFlags = (...flags) => flags.reduce((acc, flag) => acc.concat(typeof (
   flag
-) === 'string' ? flag.split('') : parseFlags(...flag)), []);
+) === 'string'
+  ? flag.split('')
+  : parseFlags(...flag)), []);
 
 /**
  * Set a custom writable stream for stdout
@@ -970,5 +977,6 @@ exposeShortOption('t', 'times');
 const rsync = (...args) => {
   return new Rsync(...args);
 };
-rsync.Rsync = Rsync;
+
 module.exports = rsync;
+module.exports.Rsync = Rsync;

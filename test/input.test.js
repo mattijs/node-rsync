@@ -2,7 +2,7 @@
 'use strict';
 
 const assertOutputPattern = require('./helpers/output').assertOutputPattern;
-const {Rsync} = require('../index');
+const { Rsync } = require('../index');
 
 describe('input', function () {
   // # sources

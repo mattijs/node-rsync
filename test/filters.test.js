@@ -3,15 +3,15 @@
 const assert = require('chai').assert;
 const assertOutput = require('./helpers/output').assertOutput;
 
-const {Rsync} = require('../index');
+const { Rsync } = require('../index');
 
 describe('filters', function () {
   let command;
 
   beforeEach(() => {
     command = Rsync.build({
-      'source': 'SOURCE',
-      'destination': 'DESTINATION'
+      source: 'SOURCE',
+      destination: 'DESTINATION'
     });
   });
 
@@ -23,11 +23,11 @@ describe('filters', function () {
 
     it('should be able to be set as an Object', function () {
       command.patterns([{
-        'action': '+',
-        'pattern': '.git'
+        action: '+',
+        pattern: '.git'
       }, {
-        'action': '-',
-        'pattern': '/tests/*.test'
+        action: '-',
+        pattern: '/tests/*.test'
       }]);
       assert.lengthOf(command._patterns, 2);
     });
@@ -39,11 +39,11 @@ describe('filters', function () {
 
     it('should add patterns to output in order added', function () {
       command.patterns([{
-        'action': '-',
-        'pattern': '.git'
+        action: '-',
+        pattern: '.git'
       }, {
-        'action': '+',
-        'pattern': '/tests/*.test.js'
+        action: '+',
+        pattern: '/tests/*.test.js'
       }, '-build/*']);
       assertOutput(command,
         '--exclude=.git --include=/tests/*.test.js --exclude=build/* SOURCE DESTINATION');

@@ -17,10 +17,10 @@ let cmd;
  * empty command wrapper and adding options using methods.
  */
 cmd = new Rsync()
-    .flags('avz')
-    .shell('ssh')
-    .source('/path/to/source')
-    .destination('you@server:/destination/path');
+  .flags('avz')
+  .shell('ssh')
+  .source('/path/to/source')
+  .destination('you@server:/destination/path');
 
 cmd.execute()
   .then(() => {
@@ -37,10 +37,10 @@ cmd.execute()
  * Rsync command it returns.
  */
 cmd = Rsync.build({
-  'flags': 'avz',
-  'shell': 'ssh',
-  'source': '/path/tp/source',
-  'destination': 'you@server:/destination/path'
+  flags: 'avz',
+  shell: 'ssh',
+  source: '/path/tp/source',
+  destination: 'you@server:/destination/path'
 });
 
 cmd.execute()
