@@ -1,10 +1,10 @@
 {
-  "name": "@boneskull/rsync",
+  "name": "@jhundley/rsync",
   "version": "0.6.1",
   "description": "Rsync cli wrapper",
   "repository": {
     "type": "git",
-    "url": "https://github.com/boneskull/rsync.git"
+    "url": "https://github.com/jhundley/rsync.git"
   },
   "keywords": [
     "rsync",
