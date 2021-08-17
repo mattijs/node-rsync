@@ -432,7 +432,7 @@ If there is something broken (which there probably is), the same applies: fork, 
 # Changelog
 
 v2.0.0
-  - Forked to `@jhundley/rsync`
+  - Forked to `@jhundley9109/rsync`
 
 v1.0.0
 
