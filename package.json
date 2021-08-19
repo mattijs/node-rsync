@@ -1,8 +1,7 @@
 {
   "name": "rsync",
-  "version": "0.6.1",
+  "version": "2.0.0",
   "description": "Rsync cli wrapper",
-  "main": "rsync.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/mattijs/node-rsync"
@@ -16,12 +15,18 @@
   "author": "Mattijs Hoitink <mattijs@monkeyandmachine.com>",
   "license": "MIT",
   "readmeFilename": "README.md",
-  "devDependencies": {
-    "chai": "^3.5.0",
-    "mocha": "^2.5.3",
-    "sinon": "^1.17.4"
-  },
   "scripts": {
-    "test": "mocha -R spec tests/*.test.js"
+    "test": "semistandard && mocha"
+  },
+  "dependencies": {
+    "cross-spawn": "^7.0.3",
+    "unixify": "^1.0.0",
+    "which": "^2.0.2"
+  },
+  "devDependencies": {
+    "chai": "^4.3.4",
+    "mocha": "^9.0.3",
+    "semistandard": "^16.0.1",
+    "sinon": "^11.1.2"
   }
 }

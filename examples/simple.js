@@ -9,22 +9,26 @@
  * The `shell` method is a shorthand for using `set('rsh', 'ssh')`.
  */
 
-var Rsync = require('../rsync');
-var cmd;
+const Rsync = require('../index');
+let cmd;
 
 /*
  * Set up the command using the fluent interface, starting with an
  * empty command wrapper and adding options using methods.
  */
 cmd = new Rsync()
-    .flags('avz')
-    .shell('ssh')
-    .source('/path/to/source')
-    .destination('you@server:/destination/path');
+  .flags('avz')
+  .shell('ssh')
+  .source('/path/to/source')
+  .destination('you@server:/destination/path');
 
-cmd.execute(function(error, code, cmd) {
+cmd.execute()
+  .then(() => {
     console.log('All done executing', cmd);
-});
+  })
+  .catch(err => {
+    console.error(err);
+  });
 
 /*
  * The same command can be set up by using the build method.
@@ -33,12 +37,16 @@ cmd.execute(function(error, code, cmd) {
  * Rsync command it returns.
  */
 cmd = Rsync.build({
-    'flags': 'avz',
-    'shell': 'ssh',
-    'source': '/path/tp/source',
-    'destination': 'you@server:/destination/path'
-})
-
-cmd.execute(function(error, code, cmd) {
-    console.log('All done executing', cmd);
+  flags: 'avz',
+  shell: 'ssh',
+  source: '/path/tp/source',
+  destination: 'you@server:/destination/path'
 });
+
+cmd.execute()
+  .then(() => {
+    console.log('All done executing', cmd);
+  })
+  .catch(err => {
+    console.error(err);
+  });
