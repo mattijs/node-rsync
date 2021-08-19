@@ -443,8 +443,12 @@ class Rsync {
   /**
    * @deprecated
    */
-  flags () {
-    throw new Error('flags() is deprecated; use setFlags() or unsetFlags() instead');
+  // flags () {
+  //   throw new Error('flags() is deprecated; use setFlags() or unsetFlags() instead');
+  // }
+
+  flags(flags) {
+    this.setFlags(flags);
   }
 }
 

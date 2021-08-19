@@ -108,7 +108,7 @@ cmd.setFlags(['avz']);
 cmd.setFlags(['a', 'v'], ['z']);
 ```
 
-The `setFlags` method is chainable.
+The `setFlags` method is chainable. `flags` is an alias for `setFlags`.
 
 ### unsetFlags(flags)
 
@@ -124,7 +124,7 @@ cmd.unsetFlags(['avz']);
 cmd.unsetFlags(['a', 'v'], ['z']);
 ```
 
-The `setFlags` method is chainable.
+The `unsetFlags` method is chainable.
 
 ### isSet(option)
 
@@ -372,7 +372,7 @@ const cmd = Rsync.build({
   source:      '/path/to/source',
   destination: 'server:/path/to/destination',
   exclude:     ['.git'],
-  setFlags:    'avz',
+  flags:       'avz',
   shell:       'ssh'
 });
 
@@ -386,7 +386,8 @@ cmd.execute(function(error, stdout, stderr) {
 * `execute()` returns a `Promise`
 * Better handling of windows/unix cross platform compatibility
 * Better escape of shell escape sequqences to prevent exploits
-* `flags()` is deprecated in lieu of `setFlags()` and `unsetFlags()`
+* `flags()` no longer can unset flags by passing a `false` final parameter. Use `unsetFlags()` instead.
+* `setFlags()` is also available.
 * Support for custom `STDOUT`, `STDERR` and `STDIN` streams
 * Default export is `rsync()` function which wraps the constructor of the `Rsync` class; the `Rsync` class is now a property thereof:
 
