@@ -373,7 +373,7 @@ used to create a new Rsync command instance from an options object.
 
 For each key in the options object the corresponding method on the Rsync instance will be
 called. When a function for the key does not exist it is ignored. An existing Rsync instance
-can optionally be provided.
+can optionally be provided. If the method doesn't take an argument, then set the value to `true`.
 
 ```javascript
 var rsync = Rsync.build({
@@ -381,7 +381,8 @@ var rsync = Rsync.build({
   destination: 'server:/path/to/destination',
   exclude:     ['.git'],
   flags:       'avz',
-  shell:       'ssh'
+  shell:       'ssh',
+  progress:    true
 });
 
 rsync.execute(function(error, stdout, stderr) {
