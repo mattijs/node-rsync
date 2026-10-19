@@ -37,6 +37,20 @@ describe('accessors', function () {
 
     });
 
+    describe('#shellExecution', function () {
+
+      it('should set the shell execution flag', function () {
+        var rsync = Rsync.build({
+          'source':           'a.txt',
+          'destination':      'b.txt',
+          'shellExecution':   true
+        });
+
+        assert.equal(true, rsync.shellExecution(), 'shellExecution was set');
+      });
+
+    });
+
     describe('#cwd', function () {
 
       it('should set the the cwd to use', function () {

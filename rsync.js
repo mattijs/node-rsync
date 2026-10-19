@@ -54,8 +54,12 @@ function Rsync(config) {
     // executable
     this._executable = hasOP(config, 'executable') ? config.executable : 'rsync';
 
-    // shell
+     // shell
     this._executableShell = hasOP(config, 'executableShell') ? config.executableShell : '/bin/sh';
+
+    // Execute the built command line through a shell (legacy, unsafe with
+    // untrusted input). Off by default; enable with shellExecution(true).
+    this._shellExecution = hasOP(config, 'shellExecution') ? !!config.shellExecution : false;
 
     // source(s) and destination
     this._sources     = [];
@@ -344,7 +348,13 @@ Rsync.prototype.toString = Rsync.prototype.command;
  * Get the arguments for the rsync command.
  * @return {Array}
  */
-Rsync.prototype.args = function() {
+Rsync.prototype.args = function(options) {
+    // When escape is disabled the arguments are returned verbatim, for use as
+    // an argument vector passed directly to spawn() with no shell. In that mode
+    // no shell metacharacters are interpreted, so no escaping is needed.
+    var noEscape = !!(options && options.escape === false);
+    var escFile  = noEscape ? identity : escapeFileArg;
+    var escShell = noEscape ? identity : escapeShellArg;
     // Gathered arguments
     var args = [];
 
@@ -366,12 +376,11 @@ Rsync.prototype.args = function() {
             else {
                 if (isArray(value)) {
                     value.forEach(function (val) {
-                        long.push(buildOption(key, val, escapeShellArg));
+                        long.push(buildOption(key, val, escShell));
                     });
                 }
                 else {
-                    long.push(buildOption(key, value, escapeShellArg));
-                }
+                    long.push(buildOption(key, value, escShell));                }
             }
 
         }
@@ -390,10 +399,10 @@ Rsync.prototype.args = function() {
     // Add includes/excludes in order
     this._patterns.forEach(function(def) {
         if (def.action === '-') {
-            args.push(buildOption('exclude', def.pattern, escapeFileArg));
+            args.push(buildOption('exclude', def.pattern, escFile));
         }
         else if (def.action === '+') {
-            args.push(buildOption('include', def.pattern, escapeFileArg));
+            args.push(buildOption('include', def.pattern, escFile));
         }
         else {
             debug(this, 'Unknown pattern action ' + def.action);
@@ -402,12 +411,12 @@ Rsync.prototype.args = function() {
 
     // Add sources
     if (this.source().length > 0) {
-        args = args.concat(this.source().map(escapeFileArg));
+        args = args.concat(this.source().map(escFile));
     }
 
     // Add destination
     if (this.destination()) {
-        args.push(escapeFileArg(this.destination()));
+        args.push(escFile(this.destination()));
     }
 
     return args;
@@ -498,13 +507,24 @@ Rsync.prototype.execute = function(callback, stdoutHandler, stderrHandler) {
     // Execute the command as a child process
     // see https://github.com/joyent/node/blob/937e2e351b2450cf1e9c4d8b3e1a4e2a2def58bb/lib/child_process.js#L589
     var cmdProc;
-    if ('win32' === process.platform) {
-        cmdProc = spawn('cmd.exe', ['/s', '/c', '"' + this.command() + '"'],
-                        { stdio: 'pipe', windowsVerbatimArguments: true, cwd: this._cwd, env: this._env });
+    if (this._shellExecution) {
+        // Opt-in legacy behaviour: run the assembled command line through a shell.
+        // This enables shell glob/quote parsing but means every argument value
+        // must be trusted by the caller (shell metacharacters are interpreted).
+        if ('win32' === process.platform) {
+            cmdProc = spawn('cmd.exe', ['/s', '/c', '"' + this.command() + '"'],
+                            { stdio: 'pipe', windowsVerbatimArguments: true, cwd: this._cwd, env: this._env });
+        }
+        else {
+            cmdProc = spawn(this._executableShell, ['-c', this.command()],
+                            { stdio: 'pipe', cwd: this._cwd, env: this._env });
+        }
     }
     else {
-        cmdProc = spawn(this._executableShell, ['-c', this.command()],
-                        { stdio: 'pipe', cwd: this._cwd, env: this._env });
+        // Safe default: execute rsync directly with an argument vector and no
+        // shell, so path/option values cannot inject shell commands (CWE-78).
+        cmdProc = spawn(this.executable(), this.args({ escape: false }),
+                            { stdio: 'pipe', cwd: this._cwd, env: this._env });
     }
 
     // Capture stdout and stderr if there are output handlers configured
@@ -578,6 +598,17 @@ createValueAccessor('executable');
  * @return {Rsync|String}
  */
 createValueAccessor('executableShell');
+
+/**
+ * Get or set if the command is executed in a shell.
+ *
+ * @function
+ * @name shellExecution
+ * @memberOf Rsync.prototype
+ * @param {Boolean} execute in a shell
+ * @return {Rsync|Boolean}
+ */
+createValueAccessor('shellExecution');
 
 /**
  * Get or set the destination for the transfer.
@@ -997,6 +1028,10 @@ function buildOption(name, value, escapeArg) {
     }
 
     return option;
+}
+
+function identity(value) {
+  return value;
 }
 
 /**
