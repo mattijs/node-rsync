@@ -37,23 +37,23 @@ describe('accessors', function () {
 
     });
 
-    describe('#shellExecution', function () {
+    describe('#executeInShell', function () {
 
-      it('should set the shell execution flag', function () {
+      it('should set the execute in shell flag', function () {
         var rsync = Rsync.build({
           'source':           'a.txt',
           'destination':      'b.txt',
-          'shellExecution':   true
+          'executeInShell':   true
         });
 
-        assert.equal(true, rsync.shellExecution(), 'shellExecution was set');
+        assert.equal(true, rsync.executeInShell(), 'executeInShell was set');
       });
 
     });
 
     describe('#cwd', function () {
 
-      it('should set the the cwd to use', function () {
+      it('should set the cwd to use', function () {
         var rsync = Rsync.build({
           'source':           'a.txt',
           'destination':      'b.txt',
@@ -67,7 +67,7 @@ describe('accessors', function () {
 
     describe('#env', function () {
 
-      it('should set the the env variables to use', function () {
+      it('should set the env variables to use', function () {
         var rsync = Rsync.build({
           'source':           'a.txt',
           'destination':      'b.txt',

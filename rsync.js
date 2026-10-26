@@ -58,8 +58,8 @@ function Rsync(config) {
     this._executableShell = hasOP(config, 'executableShell') ? config.executableShell : '/bin/sh';
 
     // Execute the built command line through a shell (legacy, unsafe with
-    // untrusted input). Off by default; enable with shellExecution(true).
-    this._shellExecution = hasOP(config, 'shellExecution') ? !!config.shellExecution : false;
+    // untrusted input). Off by default; enable with executeInShell(true).
+    this._executeInShell = hasOP(config, 'executeInShell') ? !!config.executeInShell: false;
 
     // source(s) and destination
     this._sources     = [];
@@ -507,7 +507,7 @@ Rsync.prototype.execute = function(callback, stdoutHandler, stderrHandler) {
     // Execute the command as a child process
     // see https://github.com/joyent/node/blob/937e2e351b2450cf1e9c4d8b3e1a4e2a2def58bb/lib/child_process.js#L589
     var cmdProc;
-    if (this._shellExecution) {
+    if (this._executeInShell) {
         // Opt-in legacy behaviour: run the assembled command line through a shell.
         // This enables shell glob/quote parsing but means every argument value
         // must be trusted by the caller (shell metacharacters are interpreted).
@@ -603,12 +603,12 @@ createValueAccessor('executableShell');
  * Get or set if the command is executed in a shell.
  *
  * @function
- * @name shellExecution
+ * @name executeInShell
  * @memberOf Rsync.prototype
  * @param {Boolean} execute in a shell
  * @return {Rsync|Boolean}
  */
-createValueAccessor('shellExecution');
+createValueAccessor('executeInShell');
 
 /**
  * Get or set the destination for the transfer.
