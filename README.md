@@ -283,6 +283,10 @@ Get or set the shell to use to launch the rsync command on non-Windows (Unix and
 
 On some systems (Debian, for example) /bin/sh links to /bin/dash, which does not do proper process control.  If you have problems with leftover processes, try a different shell such as /bin/bash.
 
+### executeInShell(boolean)
+
+Get or set the executeInShell flag. Default set to false, as this might be unsafe when used with untrusted input. 
+
 ### destination(destination)
 
 Get or set the destination for the rsync command.
