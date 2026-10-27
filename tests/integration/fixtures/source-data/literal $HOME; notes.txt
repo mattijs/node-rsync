@@ -1,0 +1,2 @@
+The dollar sign and semicolon in this filename are literal characters.
+This is ordinary test data, not a command or an injection payload.

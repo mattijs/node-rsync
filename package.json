@@ -22,6 +22,7 @@
     "sinon": "^1.17.4"
   },
   "scripts": {
-    "test": "mocha -R spec tests/*.test.js"
+    "test": "mocha -R spec tests/*.test.js",
+    "test:integration": "mocha -R spec tests/integration/*.test.js"
   }
 }

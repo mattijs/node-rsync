@@ -12,6 +12,11 @@ Installation goes through NPM:
 $ npm install rsync
 ```
 
+## Testing
+
+Run unit tests with `npm test`. Run local rsync integration tests separately
+with `npm run test:integration` (requires Node.js 14.14+ and `rsync` on `PATH`).
+
 ## License
 
 This module is licensed under the MIT License. See the `LICENSE` file for more details.

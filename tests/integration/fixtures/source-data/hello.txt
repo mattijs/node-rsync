@@ -1,0 +1,2 @@
+Hello from the local node-rsync copy test.
+This file must arrive byte-for-byte unchanged.

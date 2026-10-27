@@ -1,0 +1,2 @@
+This nested file checks recursive copying and filenames containing spaces.
+Unicode content: café — 日本語.
