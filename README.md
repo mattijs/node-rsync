@@ -414,6 +414,12 @@ If there is something broken (which there probably is), the same applies: fork, 
 
 # Changelog
 
+v0.7.0
+
+  - Execute rsync directly without a shell by default to mitigate shell command injection (CWE-78).
+  - Add the `executeInShell` option to opt into legacy shell execution and expansion.
+  - Add local rsync integration tests for direct and shell execution, including byte-for-byte file comparisons (`npm run test:integration`).
+
 v0.6.1
 
   - Add support for windows file paths under cygwin (#53)
